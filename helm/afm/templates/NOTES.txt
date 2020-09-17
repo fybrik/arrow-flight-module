@@ -1,0 +1,14 @@
+
+Example usage in Python:
+
+```python
+import pyarrow.flight as fl
+import pandas as pd
+
+client = fl.connect("grpc://{{ include "arrow-flight-module.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:80")
+info = client.get_flight_info(fl.FlightDescriptor.for_command(
+    # Replace with the asset name and columns of the data you want
+    r'{"asset": "nyc-taxi.parquet", "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]}'))
+reader: fl.FlightStreamReader = client.do_get(info.endpoints[0].ticket)
+df: pd.DataFrame = reader.read_pandas()
+```
