@@ -1,0 +1,15 @@
+data:
+  - name: "nyc-taxi.parquet"
+    format: parquet
+    path: "ursa-labs-taxi-data/2019/06/data.parquet"
+    connection:
+      type: s3
+      s3:
+        endpoint_url: "https://s3.us-east-2.amazonaws.com"
+    transformations:
+      - action: "Redact"
+        description: "redact stuff"
+        columns:
+          - payment_type
+        options:
+          redactValue: "XXXXX"
