@@ -1,0 +1,35 @@
+dist: xenial
+language: python
+python:
+  - "3.8"
+
+services:
+  - docker
+
+addons:
+  snaps:
+    - name: helm
+      classic: true
+
+env:
+  global:
+    - HELM_EXPERIMENTAL_OCI=1
+    - REPOSITORY=${DOCKER_HOSTNAME}/${DOCKER_NAMESPACE}/arrow-flight-module
+    - HELM_REPOSITORY=${REPOSITORY}-chart
+    - TAG=latest
+    
+install:
+  - pip install pipenv
+  - pipenv install
+
+script:
+  - make build
+
+deploy:
+  provider: script
+  script: >-
+    docker login -u ${DOCKER_USERNAME} -p ${DOCKER_TOKEN} ${DOCKER_HOSTNAME} &&
+    helm registry login -u ${DOCKER_USERNAME} -p ${DOCKER_TOKEN} ${DOCKER_HOSTNAME} &&
+    make push chart-push
+  on:
+    branch: master
