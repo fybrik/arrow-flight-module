@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/IBM/the-mesh-for-data-flight-module.svg?branch=master)](https://travis-ci.org/IBM/the-mesh-for-data-flight-module)
+[![Build Status](https://travis-ci.com/IBM/the-mesh-for-data-flight-module.svg?branch=master)](https://travis-ci.com/IBM/the-mesh-for-data-flight-module)
 
 # arrow-flight-module
 
