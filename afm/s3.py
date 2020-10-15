@@ -21,8 +21,8 @@ def s3filesystem_from_config(s3_config):
         response = r.json()
         endpoint = response.get('endpoint_url') or endpoint
         region = response.get('region') or region
-        access_key = response.get('access_key_id') or access_key
-        secret_key = response.get('secret_access_key') or secret_key
+        access_key = response.get('access_key') or access_key
+        secret_key = response.get('secret_key') or secret_key
 
 
     scheme, endpoint_override = _split_endpoint(endpoint)
