@@ -1,14 +1,30 @@
-
-Example usage in Python:
+{{- if .Values.read -}}
+# Example usage in Python
 
 ```python
+import json
 import pyarrow.flight as fl
 import pandas as pd
 
+# Create a Flight client
 client = fl.connect("grpc://{{ include "arrow-flight-module.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:80")
-info = client.get_flight_info(fl.FlightDescriptor.for_command(
-    # Replace with the asset name and columns of the data you want
-    r'{"asset": "nyc-taxi.parquet", "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]}'))
+
+# Prepare the request
+request = {
+    {{- if gt (len .Values.read) 1 }}
+    # You can request any of the following assets:
+    {{- range .Values.read }}
+    # - {{ .assetID | quote }}
+    {{- end }}
+    {{- end }}   
+    "asset": {{ if .Values.read }}{{ (index .Values.read 0).assetID | quote }}{{else}}"nyc-taxi.parquet"{{ end }},
+    # To request specific columns add to the request a "columns" key with a list of column names
+    # "columns": [...]
+}		
+
+# Send request and fetch result as a pandas DataFrame
+info = client.get_flight_info(fl.FlightDescriptor.for_command(json.dumps(request)))
 reader: fl.FlightStreamReader = client.do_get(info.endpoints[0].ticket)
 df: pd.DataFrame = reader.read_pandas()
 ```
+{{- end -}}
