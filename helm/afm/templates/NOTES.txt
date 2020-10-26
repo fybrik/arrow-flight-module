@@ -17,7 +17,7 @@ request = {
     # - {{ .assetID | quote }}
     {{- end }}
     {{- end }}   
-    "asset": {{ if .Values.read }}{{ (index .Values.read 0).assetID | quote }}{{else}}"nyc-taxi.parquet"{{ end }},
+    "asset": {{ (index .Values.read 0).assetID | quote }},
     # To request specific columns add to the request a "columns" key with a list of column names
     # "columns": [...]
 }		
