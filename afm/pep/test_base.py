@@ -1,3 +1,7 @@
+#
+# Copyright 2020 IBM Corp.
+# SPDX-License-Identifier: Apache-2.0
+#
 import unittest
 from .base import Action, consolidate_actions, action_key
 

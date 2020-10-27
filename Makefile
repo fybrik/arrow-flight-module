@@ -41,5 +41,6 @@ helm-verify:
 	helm install --generate-name --dry-run -f helm/afm/values.yaml.sample  helm/afm
 	
 .PHONY: clean
+.PHONY: test
 test:
 	pipenv run python -m unittest discover
