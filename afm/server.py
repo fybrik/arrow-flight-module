@@ -37,7 +37,7 @@ class AFMFlightServer(fl.FlightServerBase):
                 return pq.read_schema(f)
         else:
             raise ValueError("unsupported format {}".format(self.format))
-       
+    
     def _read_asset(self, asset, columns=None):
         if asset.format == "parquet":
             # TODO: switch to using the dataset API directly to avoid loading entire table

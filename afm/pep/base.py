@@ -24,7 +24,6 @@ class Action:
         options (dict): additional action specific options
     """
 
-    # Action.registry is a map from action name to class implementing the action for all supported action types
     registry = {}
     
     def __init__(self, description, columns, options):
@@ -79,11 +78,10 @@ class Action:
             field = schema.field(field_index)
             new_field = pa.field(field.name, 
                 self.field_type() or field.type, 
-                self.field_nullable() or field.nullable, 
+                self.field_nullable() if self.field_nullable() is not None else field.nullable, 
                 field.metadata).with_metadata(self._build_metadata(field))
             schema = schema.set(field_index, new_field)
         return schema
-    
 
     def _build_metadata(self, field: pa.Field) -> dict:
         metadata = dict(field.metadata or {})

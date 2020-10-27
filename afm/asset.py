@@ -53,5 +53,7 @@ class Asset:
             cls = registry[x["action"]]
             return cls(description=x["description"], columns=x.get("columns"), options=x.get("options"))
 
+        # Create a list of Action objects from the transformations configuration
         actions = [build_action(x) for x in asset_config.get("transformations", [])]
+        # Consolidate identical actions to keep the asset.actions efficient
         return consolidate_actions(actions)
