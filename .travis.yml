@@ -24,6 +24,7 @@ install:
 
 script:
   - make test
+  - make helm-verify
   - make build
 
 deploy:
