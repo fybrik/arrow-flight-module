@@ -6,7 +6,15 @@ CHART_IMG = ${HELM_REPOSITORY}:${TAG}
 
 export HELM_EXPERIMENTAL_OCI=1
 
-all: build push
+all: test build
+
+.PHONY: helm-verify
+helm-verify:
+	helm lint helm/afm
+
+.PHONY: test
+test:
+	pipenv run python -m unittest discover
 
 .PHONY: build
 build:
@@ -14,17 +22,13 @@ build:
 	docker build -f build/Dockerfile . -t ${IMG}
 	rm requirements.txt
 
-.PHONY: push-to-kind
-push-to-kind:
-	kind load docker-image ${IMG}
-
 .PHONY: push
 push:
 	docker push ${IMG}
 
-.PHONY: deploy
-deploy:
-	helm install --set image.repository=${HELM_REPOSITORY} --set image.tag=${TAG} afm ./helm/afm
+.PHONY: push-to-kind
+push-to-kind:
+	kind load docker-image ${IMG}
 
 .PHONY: chart-push
 chart-push:
@@ -32,10 +36,10 @@ chart-push:
 	helm chart push ${CHART_IMG}
 	helm chart remove ${CHART_IMG}
 
+.PHONY: deploy
+deploy:
+	helm install --set image.repository=${HELM_REPOSITORY} --set image.tag=${TAG} afm ./helm/afm
+
 .PHONY: clean
 clean:
 	helm uninstall afm || true
-
-helm-verify:
-	helm lint helm/afm
-	helm install --generate-name --dry-run -f helm/afm/values.yaml.sample  helm/afm

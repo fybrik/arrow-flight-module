@@ -14,7 +14,7 @@ from pyarrow.fs import FileType
 from .asset import Asset
 from .command import AFMCommand
 from .config import Config
-from .pep.actions import transform
+from .pep import transform, transform_schema
 from .ticket import AFMTicket
 
 
@@ -23,13 +23,6 @@ class AFMFlightServer(fl.FlightServerBase):
         super(AFMFlightServer, self).__init__(
             "grpc://0.0.0.0:{}".format(port), *args, **kwargs)
         self.config_path = config_path
-
-    def _remove_hidden_columns(self, schema: pa.Schema, asset: Asset):
-        remove_columns = [action for action in asset.actions if action.name == "RemoveColumns"]
-        for action in remove_columns:
-            for column in action.columns:
-                schema = schema.remove(schema.get_field_index(column))
-        return schema
 
     def _infer_schema(self, asset):
         # TODO: change to always use just the dataset API
@@ -44,7 +37,7 @@ class AFMFlightServer(fl.FlightServerBase):
                 return pq.read_schema(f)
         else:
             raise ValueError("unsupported format {}".format(self.format))
-
+    
     def _read_asset(self, asset, columns=None):
         if asset.format == "parquet":
             # TODO: switch to using the dataset API directly to avoid loading entire table
@@ -70,9 +63,7 @@ class AFMFlightServer(fl.FlightServerBase):
 
         # Infer schema
         schema = self._infer_schema(asset)
-        if cmd.columns is not None:
-            schema = pa.schema([schema.field(name) for name in cmd.columns])
-        self._remove_hidden_columns(schema, asset)
+        schema = transform_schema(asset.actions, schema)
 
         # Build endpoint to this server
         endpoints = []
@@ -86,10 +77,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
 
     def do_get(self, context, ticket: fl.Ticket):
-        #TODO: must also apply remove column actions here for security
-
         ticket_info: AFMTicket = AFMTicket.fromJSON(ticket.ticket)
-
         if ticket_info.columns is None:
             raise ValueError("Columns must be specified in ticket")
 
@@ -97,8 +85,9 @@ class AFMFlightServer(fl.FlightServerBase):
             asset = Asset(config, ticket_info.asset_name)
 
         schema, batches = self._read_asset(asset, ticket_info.columns)
-        print("read asset", schema, batches)
-        batches = transform(asset.actions, batches)
+
+        schema = transform_schema(asset.actions, schema)
+        batches = transform(asset.actions, batches)        
         return fl.GeneratorStream(schema, batches)
 
     def do_put(self, context, descriptor, reader, writer):

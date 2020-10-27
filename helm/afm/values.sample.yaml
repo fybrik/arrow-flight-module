@@ -1,3 +1,4 @@
+# Try it with `helm install --generate-name --dry-run -f helm/afm/values.sample.yaml helm/afm`
 metadata:
   labels: {}
   name: 012d42539692bba841a7
