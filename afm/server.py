@@ -24,13 +24,6 @@ class AFMFlightServer(fl.FlightServerBase):
             "grpc://0.0.0.0:{}".format(port), *args, **kwargs)
         self.config_path = config_path
 
-    def _remove_hidden_columns(self, schema: pa.Schema, asset: Asset):
-        remove_columns = [action for action in asset.actions if action.name == "RemoveColumns"]
-        for action in remove_columns:
-            for column in action.columns:
-                schema = schema.remove(schema.get_field_index(column))
-        return schema
-
     def _infer_schema(self, asset):
         # TODO: change to always use just the dataset API
         if asset.format == "csv":
@@ -44,7 +37,7 @@ class AFMFlightServer(fl.FlightServerBase):
                 return pq.read_schema(f)
         else:
             raise ValueError("unsupported format {}".format(self.format))
-
+       
     def _read_asset(self, asset, columns=None):
         if asset.format == "parquet":
             # TODO: switch to using the dataset API directly to avoid loading entire table
@@ -70,9 +63,9 @@ class AFMFlightServer(fl.FlightServerBase):
 
         # Infer schema
         schema = self._infer_schema(asset)
-        if cmd.columns is not None:
-            schema = pa.schema([schema.field(name) for name in cmd.columns])
-        self._remove_hidden_columns(schema, asset)
+        for action in asset.actions:
+            schema = action.schema(schema)
+
 
         # Build endpoint to this server
         endpoints = []
@@ -97,6 +90,9 @@ class AFMFlightServer(fl.FlightServerBase):
             asset = Asset(config, ticket_info.asset_name)
 
         schema, batches = self._read_asset(asset, ticket_info.columns)
+        for action in asset.actions:
+            schema = action.schema(schema)
+
         print("read asset", schema, batches)
         batches = transform(asset.actions, batches)
         return fl.GeneratorStream(schema, batches)

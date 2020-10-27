@@ -35,6 +35,10 @@ class Action:
         self.columns = columns
         self.options = options
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.registry[cls.__name__] = cls
+
     def __repr__(self):
         return str((action_key(self), self.columns))
 
@@ -46,11 +50,32 @@ class Action:
     def description(self):
         return self.metadata["description"]
 
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        cls.registry[cls.__name__] = cls
+    def field_type(self):
+        return None # unchanged from original schema
 
-    def build_metadata(self, field: pa.Field) -> dict:
+    def field_nullable(self):
+        return None # unchanged from original schema
+
+    def schema(self, original):
+        """
+        Computes a schema of the result after this action runs
+        @param original - the original schema
+        @returns new schema
+        """
+        schema: pa.Schema = original
+        columns = [column for column in self.columns if column in schema.names]
+        for column in columns:
+            field_index = schema.get_field_index(column)
+            field = schema.field(field_index)
+            new_field = pa.field(field.name, 
+                self.field_type() or field.type, 
+                self.field_nullable() or field.nullable, 
+                field.metadata).with_metadata(self._build_metadata(field))
+            schema = schema.set(field_index, new_field)
+        return schema
+    
+
+    def _build_metadata(self, field: pa.Field) -> dict:
         metadata = dict(field.metadata or {})
         transformations = json.loads(metadata.get(b"transformations") or "[]")
         transformations.append(self.metadata)
@@ -81,18 +106,12 @@ def consolidate_actions(actions):
     return ret
 
 def transform(actions, record_batches):
-    i = 1
-    actions = consolidate_actions(actions)
-    print("starting to transform")
     for record_batch in record_batches:
-        print("processing record_batch {}".format(i))
-        i += 1
         item = record_batch
         for action in actions:
             if callable(action):
                 item = action(item)
         yield item
-
 
 class Redact(Action):
     def __init__(self, description, columns, options):
@@ -100,22 +119,22 @@ class Redact(Action):
         self.redact_value = options.get("redactValue", "XXXXXXXXXX")
 
     def __call__(self, records: pa.RecordBatch) -> pa.RecordBatch:
-        
-        schema: pa.Schema = records.schema
-        columns = [column for column in self.columns if column in schema.names]
-        for column in columns:
-            field_index = schema.get_field_index(column)
-            field = schema.field(field_index)
-            new_field = pa.field(field.name, pa.string(), field.nullable, field.metadata) \
-                .with_metadata(self.build_metadata(field))
-            schema = schema.set(field_index, new_field)
+        columns = [column for column in self.columns if column in records.schema.names]
         df: pd.DataFrame = records.to_pandas()
         df[columns] = self.redact_value
-        return pa.RecordBatch.from_pandas(df=df, schema=schema, preserve_index=False)
+        new_schema = self.schema(records.schema)
+        return pa.RecordBatch.from_pandas(df=df, schema=new_schema, preserve_index=False)
 
+    def field_type(self):
+        return pa.string() # redact value is a string
 
 class RemoveColumns(Action):
-    pass
+    def schema(self, original):
+        schema: pa.Schema = original
+        columns = [column for column in self.columns if column in schema.names]
+        for column in columns:
+            schema = schema.remove(schema.get_field_index(column))
+        return schema
 
 
 def test():

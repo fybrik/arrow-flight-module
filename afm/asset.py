@@ -5,7 +5,7 @@
 import os
 
 from afm.config import Config
-from afm.pep.actions import Action
+from afm.pep.actions import Action, consolidate_actions
 from afm.s3 import s3filesystem_from_config
 
 
@@ -53,4 +53,5 @@ class Asset:
             cls = Action.registry[x["action"]]
             return cls(description=x["description"], columns=x.get("columns"), options=x.get("options"))
 
-        return [build_action(x) for x in asset_config.get("transformations", [])]
+        actions = [build_action(x) for x in asset_config.get("transformations", [])]
+        return consolidate_actions(actions)
