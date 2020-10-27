@@ -5,7 +5,7 @@
 import os
 
 from afm.config import Config
-from afm.pep.actions import Action, consolidate_actions
+from afm.pep import registry, consolidate_actions
 from afm.s3 import s3filesystem_from_config
 
 
@@ -50,7 +50,7 @@ class Asset:
     @staticmethod
     def _actions_for_asset(asset_config: dict):
         def build_action(x):
-            cls = Action.registry[x["action"]]
+            cls = registry[x["action"]]
             return cls(description=x["description"], columns=x.get("columns"), options=x.get("options"))
 
         actions = [build_action(x) for x in asset_config.get("transformations", [])]

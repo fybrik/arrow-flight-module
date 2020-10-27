@@ -14,7 +14,7 @@ from pyarrow.fs import FileType
 from .asset import Asset
 from .command import AFMCommand
 from .config import Config
-from .pep.actions import transform
+from .pep import transform, transform_schema
 from .ticket import AFMTicket
 
 
@@ -63,9 +63,7 @@ class AFMFlightServer(fl.FlightServerBase):
 
         # Infer schema
         schema = self._infer_schema(asset)
-        for action in asset.actions:
-            schema = action.schema(schema)
-
+        schema = transform_schema(asset.actions, schema)
 
         # Build endpoint to this server
         endpoints = []
@@ -79,10 +77,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
 
     def do_get(self, context, ticket: fl.Ticket):
-        #TODO: must also apply remove column actions here for security
-
         ticket_info: AFMTicket = AFMTicket.fromJSON(ticket.ticket)
-
         if ticket_info.columns is None:
             raise ValueError("Columns must be specified in ticket")
 
@@ -90,11 +85,9 @@ class AFMFlightServer(fl.FlightServerBase):
             asset = Asset(config, ticket_info.asset_name)
 
         schema, batches = self._read_asset(asset, ticket_info.columns)
-        for action in asset.actions:
-            schema = action.schema(schema)
 
-        print("read asset", schema, batches)
-        batches = transform(asset.actions, batches)
+        schema = transform_schema(asset.actions, schema)
+        batches = transform(asset.actions, batches)        
         return fl.GeneratorStream(schema, batches)
 
     def do_put(self, context, descriptor, reader, writer):
