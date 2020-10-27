@@ -11,7 +11,6 @@ all: test build
 .PHONY: helm-verify
 helm-verify:
 	helm lint helm/afm
-	helm install --generate-name --dry-run -f helm/afm/values.yaml.sample  helm/afm
 
 .PHONY: test
 test:
@@ -44,4 +43,3 @@ deploy:
 .PHONY: clean
 clean:
 	helm uninstall afm || true
-
