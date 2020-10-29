@@ -25,16 +25,8 @@ class AFMFlightServer(fl.FlightServerBase):
         self.config_path = config_path
 
     def _infer_schema(self, asset):
-        # TODO: change to always use just the dataset API
-        if asset.format == "csv":
+        if asset.format == "csv" or asset.format == "parquet":
             return ds.dataset(asset.path, format=asset.format, filesystem=asset.filesystem).schema
-        elif asset.format == "parquet":
-            file_info = asset.filesystem.get_file_info([asset.path])[0]
-            path = asset.path
-            if file_info.type == FileType.Directory:
-                path = os.path.join(path, "_metadata")
-            with asset.filesystem.open_input_file(path) as f:
-                return pq.read_schema(f)
         else:
             raise ValueError("unsupported format {}".format(self.format))
     
