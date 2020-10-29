@@ -9,7 +9,7 @@ import pyarrow.flight as fl
 import pyarrow.parquet as pq
 import pyarrow.csv as csv
 import pyarrow.dataset as ds
-from pyarrow.fs import FileType
+from pyarrow.fs import FileSelector
 
 from .asset import Asset
 from .command import AFMCommand
@@ -31,15 +31,13 @@ class AFMFlightServer(fl.FlightServerBase):
             raise ValueError("unsupported format {}".format(self.format))
     
     def _read_asset(self, asset, columns=None):
-        if asset.format == "parquet":
-            # TODO: switch to using the dataset API directly to avoid loading entire table
-            table = pq.read_table(
-                asset.path, columns=columns, filesystem=asset.filesystem)
-            batches = table.to_batches(max_chunksize=64*2**20)
-            schema = table.schema
-        elif asset.format == "csv":
-            # TODO: I'm not sure if batch_size does anything here
-            dataset = ds.dataset(asset.path, format="csv", filesystem=asset.filesystem)
+        # FIXME(roee88): bypass https://issues.apache.org/jira/browse/ARROW-7867
+        data_files = [f.path for f in asset.filesystem.get_file_info(FileSelector(asset.path, allow_not_found=True, recursive=True)) if f.size]
+        if not data_files:
+            data_files = [asset.path] # asset.path is probably a single file
+
+        if asset.format == "csv" or asset.format == "parquet":
+            dataset = ds.dataset(data_files, format=asset.format, filesystem=asset.filesystem)
             batches = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20).to_batches()
             schema = dataset.schema
         else:
