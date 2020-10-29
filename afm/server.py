@@ -24,26 +24,28 @@ class AFMFlightServer(fl.FlightServerBase):
             "grpc://0.0.0.0:{}".format(port), *args, **kwargs)
         self.config_path = config_path
 
-    def _infer_schema(self, asset):
-        if asset.format == "csv" or asset.format == "parquet":
-            return ds.dataset(asset.path, format=asset.format, filesystem=asset.filesystem).schema
-        else:
-            raise ValueError("unsupported format {}".format(self.format))
-    
-    def _read_asset(self, asset, columns=None):
+    def _get_dataset(self, asset):
         # FIXME(roee88): bypass https://issues.apache.org/jira/browse/ARROW-7867
         data_files = [f.path for f in asset.filesystem.get_file_info(FileSelector(asset.path, allow_not_found=True, recursive=True)) if f.size]
         if not data_files:
             data_files = [asset.path] # asset.path is probably a single file
 
         if asset.format == "csv" or asset.format == "parquet":
-            dataset = ds.dataset(data_files, format=asset.format, filesystem=asset.filesystem)
-            batches = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20).to_batches()
-            schema = dataset.schema
-        else:
-            raise ValueError("unsupported format {}".format(asset.format))
-            
-        return schema, batches
+            return ds.dataset(data_files, format=asset.format, filesystem=asset.filesystem)
+
+        raise ValueError("unsupported format {}".format(asset.format))
+
+    def _infer_schema(self, asset):
+        dataset = self._get_dataset(asset)
+        return dataset.schema
+    
+    def _read_asset(self, asset, columns=None):
+        # TODO(roee88): should use `batches = scanner.to_batches()` to avoid loading all to memory after tuning performance
+        dataset = self._get_dataset(asset)
+        scanner = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20)
+        table = scanner.to_table()
+        batches = table.to_batches(max_chunksize=64*2**20)
+        return dataset.schema, batches
 
     def get_flight_info(self, context, descriptor):
         cmd = AFMCommand(descriptor.command)
