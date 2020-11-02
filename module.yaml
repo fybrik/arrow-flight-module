@@ -7,7 +7,6 @@ metadata:
     version: 0.0.1  # semantic version
 spec:
   chart: ghcr.io/the-mesh-for-data/arrow-flight-module-chart:latest
-  type: service
   flows:
     - read
   capabilities:
