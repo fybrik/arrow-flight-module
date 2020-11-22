@@ -26,7 +26,11 @@ class AFMFlightServer(fl.FlightServerBase):
 
     def _get_dataset(self, asset):
         # FIXME(roee88): bypass https://issues.apache.org/jira/browse/ARROW-7867
-        data_files = [f.path for f in asset.filesystem.get_file_info(FileSelector(asset.path, allow_not_found=True, recursive=True)) if f.size]
+        selector = FileSelector(asset.path, allow_not_found=True, recursive=True)
+        try:
+            data_files = [f.path for f in asset.filesystem.get_file_info(selector) if f.size]
+        except NotADirectoryError:
+            data_files = None
         if not data_files:
             data_files = [asset.path] # asset.path is probably a single file
 

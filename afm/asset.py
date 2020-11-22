@@ -8,6 +8,7 @@ from afm.config import Config
 from afm.pep import registry, consolidate_actions
 from afm.s3 import s3filesystem_from_config
 
+from pyarrow.fs import LocalFileSystem
 
 class Asset:
     def __init__(self, config: Config, asset_name: str):
@@ -44,6 +45,8 @@ class Asset:
         connection_type = connection['type']
         if connection_type == "s3":
             return s3filesystem_from_config(connection["s3"])
+        elif connection_type == "localfs":
+            return LocalFileSystem()
         raise ValueError(
             "Unsupported connection type: {}".format(connection_type))
 
