@@ -44,11 +44,9 @@ class AFMFlightServer(fl.FlightServerBase):
         return dataset.schema
     
     def _read_asset(self, asset, columns=None):
-        # TODO(roee88): should use `batches = scanner.to_batches()` to avoid loading all to memory after tuning performance
         dataset = self._get_dataset(asset)
         scanner = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20)
-        table = scanner.to_table()
-        batches = table.to_batches(max_chunksize=64*2**20)
+        batches = scanner.to_batches()
         return dataset.schema, batches
 
     def get_flight_info(self, context, descriptor):
