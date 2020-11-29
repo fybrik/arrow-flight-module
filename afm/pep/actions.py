@@ -22,10 +22,13 @@ class Redact(Action):
             pa.RecordBatch: transformed record batch
         """
         columns = [column for column in self.columns if column in records.schema.names]
-        df: pd.DataFrame = records.to_pandas()
-        df[columns] = self.redact_value
+        indices = [records.schema.get_field_index(c) for c in columns]
+        constColumn = pa.array([self.redact_value] * len(records), type=pa.string())
+        new_columns = records.columns
+        for i in indices:
+           new_columns[i] = constColumn
         new_schema = self.schema(records.schema)
-        return pa.RecordBatch.from_pandas(df=df, schema=new_schema, preserve_index=False)
+        return pa.RecordBatch.from_arrays(new_columns, schema=new_schema)
 
     def field_type(self):
         """Overrides field_type to calculate transformed schema correctly."""
