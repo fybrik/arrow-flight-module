@@ -11,8 +11,6 @@ request = {
     "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]
 }
 
-client = info = None
-
 def read_dataset():
     result: fl.FlightStreamReader = client.do_get(info.endpoints[0].ticket)
     for s in result:
