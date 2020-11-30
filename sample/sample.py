@@ -3,9 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 from timeit import repeat
-
-def main(port, num_repeat):
-    setup = '''
 import pyarrow.flight as fl
 import json
 
@@ -14,20 +11,23 @@ request = {
     "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]
 }
 
-client = fl.connect("grpc://localhost:{}".format(
-''' + str(port) + '''))
-info: fl.FlightInfo = client.get_flight_info(
-    fl.FlightDescriptor.for_command(json.dumps(request)))
-'''
+client = info = None
 
-    stmt = '''
-result: fl.FlightStreamReader = client.do_get(info.endpoints[0].ticket)
-for s in result:
-    pass
-'''
+def read_dataset():
+    result: fl.FlightStreamReader = client.do_get(info.endpoints[0].ticket)
+    for s in result:
+        pass
+
+def main(port, num_repeat):
+    global client, info
+    client = fl.connect("grpc://localhost:{}".format(port))
+    info = client.get_flight_info(
+        fl.FlightDescriptor.for_command(json.dumps(request)))
 
     print("Timing " + str(num_repeat) + " runs of retrieving the dataset:" +
-          str(repeat(stmt=stmt, setup=setup, repeat=num_repeat, number=1)))
+          str(repeat(stmt="read_dataset()",
+              setup="from __main__ import read_dataset",
+              repeat=num_repeat, number=1)))
 
 if __name__ == "__main__":
     import argparse
