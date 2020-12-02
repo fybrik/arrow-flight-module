@@ -26,7 +26,7 @@ class Redact(Action):
         constColumn = pa.array([self.redact_value] * len(records), type=pa.string())
         new_columns = records.columns
         for i in indices:
-           new_columns[i] = constColumn
+            new_columns[i] = constColumn
         new_schema = self.schema(records.schema)
         return pa.RecordBatch.from_arrays(new_columns, schema=new_schema)
 

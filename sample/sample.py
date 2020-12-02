@@ -2,40 +2,38 @@
 # Copyright 2020 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 #
+from timeit import repeat
 import pyarrow.flight as fl
-import pandas as pd
 import json
-from time import time
 
-def main(port):
-    client = fl.connect("grpc://localhost:{}".format(port))
-    request = {
-        "asset": "nyc-taxi.parquet", 
-        "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]
-    }
+request = {
+    "asset": "nyc-taxi.parquet", 
+    "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]
+}
 
-    start = time()
-    info: fl.FlightInfo = client.get_flight_info(
-        fl.FlightDescriptor.for_command(json.dumps(request)))
-    print("get_flight_info: " + str(time() - start))
-
-    # print(info.schema)
-    start = time()
+def read_dataset():
     result: fl.FlightStreamReader = client.do_get(info.endpoints[0].ticket)
-    print("do_get: " + str(time() - start))
-
-    start = time()
     for s in result:
         pass
-    print("iterate over dataset: " + str(time() - start))
-    # df: pd.DataFrame = result.read_pandas()
-    # print(df)
+
+def main(port, num_repeat):
+    global client, info
+    client = fl.connect("grpc://localhost:{}".format(port))
+    info = client.get_flight_info(
+        fl.FlightDescriptor.for_command(json.dumps(request)))
+
+    print("Timing " + str(num_repeat) + " runs of retrieving the dataset:" +
+          str(repeat(stmt="read_dataset()",
+              setup="from __main__ import read_dataset",
+              repeat=num_repeat, number=1)))
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='arrow-flight-module sample')
     parser.add_argument(
         '--port', type=int, default=8080, help='Listening port')
+    parser.add_argument(
+        '--repeat', type=int, default=3, help='Number of times we measure the time to go over dataset')
     args = parser.parse_args()
 
-    main(args.port)
+    main(args.port, args.repeat)
