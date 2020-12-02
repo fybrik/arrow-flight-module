@@ -2,13 +2,18 @@
 # Copyright 2020 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 #
+import httpfs
 import os
 
 from afm.config import Config
 from afm.pep import registry, consolidate_actions
 from afm.s3 import s3filesystem_from_config
 
-from pyarrow.fs import LocalFileSystem
+from pyarrow.fs import LocalFileSystem, PyFileSystem, FSSpecHandler
+
+def httpfs_from_config(httpfs_config):
+    fs = httpfs.fs.HttpFs(httpfs_config.get('endpoint_url'))
+    return PyFileSystem(FSSpecHandler(fs))
 
 class Asset:
     def __init__(self, config: Config, asset_name: str):
@@ -47,6 +52,8 @@ class Asset:
             return s3filesystem_from_config(connection["s3"])
         elif connection_type == "localfs":
             return LocalFileSystem()
+        elif connection_type == "httpfs":
+            return httpfs_from_config(connection["httpfs"])
         raise ValueError(
             "Unsupported connection type: {}".format(connection_type))
 
