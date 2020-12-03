@@ -6,8 +6,7 @@ import os
 
 import pyarrow as pa
 import pyarrow.flight as fl
-import pyarrow.parquet as pq
-import pyarrow.csv as csv
+import pyarrow.json as json
 import pyarrow.dataset as ds
 from pyarrow.fs import FileSelector
 
@@ -34,16 +33,23 @@ class AFMFlightServer(fl.FlightServerBase):
         if not data_files:
             data_files = [asset.path] # asset.path is probably a single file
 
-        if asset.format == "csv" or asset.format == "parquet":
+        if asset.format in ["csv", "parquet"]:
             return ds.dataset(data_files, format=asset.format, filesystem=asset.filesystem)
 
         raise ValueError("unsupported format {}".format(asset.format))
 
     def _infer_schema(self, asset):
+        if asset.format == "json":
+            with asset.filesystem.open_input_file(asset.path) as f:
+                return json.read_json(f).schema
         dataset = self._get_dataset(asset)
         return dataset.schema
     
     def _read_asset(self, asset, columns=None):
+        if asset.format == "json":
+            with asset.filesystem.open_input_file(asset.path) as f:
+                table = json.read_json(f)
+                return table.schema, table.to_batches()
         dataset = self._get_dataset(asset)
         scanner = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20)
         batches = scanner.to_batches()
