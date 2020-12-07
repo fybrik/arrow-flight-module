@@ -3,8 +3,8 @@ data:
     format: parquet
     path: "ursa-labs-taxi-data/2019/06/data.parquet"
     connection:
-      type: httpfs
-      httpfs:
+      type: s3
+      s3:
         endpoint_url: "https://s3.us-east-2.amazonaws.com"
     transformations:
       - action: "Redact"
