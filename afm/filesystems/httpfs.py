@@ -5,6 +5,5 @@
 from fsspec.implementations.http import HTTPFileSystem
 from pyarrow.fs import PyFileSystem, FSSpecHandler
 
-def httpfs_from_config(httpfs_config):
-    fs = HTTPFileSystem()
-    return PyFileSystem(FSSpecHandler(fs))
+def httpfs_from_config():
+    return PyFileSystem(FSSpecHandler(HTTPFileSystem()))

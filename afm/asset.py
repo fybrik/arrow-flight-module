@@ -49,7 +49,7 @@ class Asset:
         elif connection_type == "localfs":
             return LocalFileSystem()
         elif connection_type == "httpfs":
-            return httpfs_from_config(connection["httpfs"])
+            return httpfs_from_config()
         raise ValueError(
             "Unsupported connection type: {}".format(connection_type))
 
