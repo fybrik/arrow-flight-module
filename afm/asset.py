@@ -6,7 +6,8 @@ import os
 
 from afm.config import Config
 from afm.pep import registry, consolidate_actions
-from afm.s3 import s3filesystem_from_config
+from afm.filesystems.s3 import s3filesystem_from_config
+from afm.filesystems.httpfs import httpfs_from_config
 
 from pyarrow.fs import LocalFileSystem
 
@@ -47,6 +48,8 @@ class Asset:
             return s3filesystem_from_config(connection["s3"])
         elif connection_type == "localfs":
             return LocalFileSystem()
+        elif connection_type == "httpfs":
+            return httpfs_from_config()
         raise ValueError(
             "Unsupported connection type: {}".format(connection_type))
 

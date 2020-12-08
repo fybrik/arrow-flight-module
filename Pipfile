@@ -17,6 +17,8 @@ pandas = "==1.0.5"
 pyarrow = "==1.0.1"
 schemed-yaml-config = "==0.0.3"
 requests = "*"
+fsspec = "==0.8.4"
+aiohttp = "==3.7.3"
 
 [requires]
 python_version = "3.8"
