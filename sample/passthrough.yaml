@@ -1,0 +1,16 @@
+data:
+  - name: "nyc-taxi.parquet"
+    format: parquet
+    path: "nyc-taxi.parquet"
+    connection:
+      type: passthrough
+      passthrough:
+        endpoint_url: "localhost"
+        port: "9000"
+    transformations:
+      - action: "Redact"
+        description: "redact stuff"
+        columns:
+          - payment_type
+        options:
+          redactValue: "XXXXX"
