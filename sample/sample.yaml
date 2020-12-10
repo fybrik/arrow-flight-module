@@ -5,7 +5,7 @@ data:
     connection:
       type: s3
       s3:
-        url: "https://s3.us-east-2.amazonaws.com/ursa-labs-taxi-data/2019/06/data.parquet"
+        endpoint_url: "https://s3.us-east-2.amazonaws.com"
     transformations:
       - action: "Redact"
         description: "redact stuff"
