@@ -51,8 +51,6 @@ class Asset:
         connection_type = connection['type']
         if connection_type == "s3":
             return s3filesystem_from_config(connection["s3"])
-        elif connection_type == "restfs":
-            return rest_filesystem_from_config(connection["restfs"])
         elif connection_type == "localfs":
             return LocalFileSystem()
         elif connection_type == "httpfs":
