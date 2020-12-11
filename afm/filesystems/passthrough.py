@@ -29,9 +29,7 @@ class Passthrough:
         return fl.SchemaResult(info.schema)
 
     def list_flights(self, context, criteria):
-        for ticket_name in self.tables:
-            descriptor = fl.FlightDescriptor.for_path(ticket_name)
-            yield self.get_flight_info(context, descriptor)
+        raise NotImplementedError("list_flights not implemented")
 
     def list_actions(self, context):
         raise NotImplementedError("list_actions not implemented")
