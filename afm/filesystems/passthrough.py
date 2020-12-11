@@ -5,6 +5,7 @@
 
 import pyarrow.flight as fl
 import json
+import re
 
 class Passthrough:
     def __init__(self, endpoint, port):
@@ -14,7 +15,9 @@ class Passthrough:
         for chunk in reader:
             yield chunk.data
 
-    def get_flight_info(self, cmd):
+    def get_flight_info(self, cmd, path):
+        cmd = re.sub('"asset":\s*".*?"', '"asset": "' + path + '"',
+                     cmd.decode())
         return self.flight_client.get_flight_info(fl.FlightDescriptor.for_command(cmd))
 
     def do_get(self, context, ticket):

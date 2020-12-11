@@ -1,7 +1,11 @@
 data:
+  - name: "data.csv"
+    format: csv
+    path: "/home/cdoron/pilot_arrow_client/docker/data.csv"
+    connection:
+      type: localfs
   - name: "nyc-taxi.parquet"
-    format: parquet
-    path: "nyc-taxi.parquet"
+    path: "data.csv"
     connection:
       type: passthrough
       passthrough:
