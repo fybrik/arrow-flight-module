@@ -6,7 +6,7 @@
 import pyarrow.flight as fl
 import json
 
-from pyarrow.flight import Ticket, FlightInfo, FlightEndpoint
+from pyarrow.flight import FlightInfo, FlightEndpoint, Ticket
 
 class Passthrough:
     def __init__(self, endpoint, port):
@@ -25,14 +25,16 @@ class Passthrough:
         endpoints = []
         for endpoint in flight_info.endpoints:
             ticket_dict = json.loads(endpoint.ticket.ticket.decode())
-            ticket_dict["passthrough_asset"] = asset_name
+            ticket_dict["asset_name"] = asset_name
+            ticket_dict["passthrough_ticket"] = endpoint.ticket.ticket.decode()
             endpoints.append(FlightEndpoint(Ticket(json.dumps(ticket_dict)), endpoint.locations))
         return FlightInfo(flight_info.schema, flight_info.descriptor,
                 endpoints, flight_info.total_records,
                 flight_info.total_bytes)
 
     def do_get(self, context, ticket):
-        flight_stream_reader = self.flight_client.do_get(ticket)
+        ticket_dict = json.loads(ticket.ticket.decode())
+        flight_stream_reader = self.flight_client.do_get(Ticket(ticket_dict["passthrough_ticket"]))
         return flight_stream_reader.schema, self.batches(flight_stream_reader)
 
     def do_put(self, context, descriptor, reader, writer):
