@@ -82,9 +82,9 @@ class AFMFlightServer(fl.FlightServerBase):
             asset = Asset(config, ticket_info.asset_name)
 
         if asset.connection_type == "passthrough":
-            return asset.filesystem.do_get(context, ticket)
-
-        schema, batches = self._read_asset(asset, ticket_info.columns)
+            schema, batches = asset.filesystem.do_get(context, ticket)
+        else:
+            schema, batches = self._read_asset(asset, ticket_info.columns)
 
         schema = transform_schema(asset.actions, schema)
         batches = transform(asset.actions, batches)        
