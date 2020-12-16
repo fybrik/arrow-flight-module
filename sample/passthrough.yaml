@@ -15,6 +15,6 @@ data:
       - action: "Redact"
         description: "redact stuff"
         columns:
-          - payment_type
+          - total_amount
         options:
           redactValue: "XXXXX"
