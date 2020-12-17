@@ -62,7 +62,7 @@ class AFMFlightServer(fl.FlightServerBase):
             asset = Asset(config, cmd.asset_name)
 
         if asset.connection_type == 'passthrough':
-            return asset.filesystem.get_flight_info(descriptor.command, cmd.asset_name, asset.filesystem.passthrough_command)
+            return asset.passthrough.get_flight_info(descriptor.command, cmd.asset_name, asset.passthrough.passthrough_command)
 
         # Infer schema
         schema = self._infer_schema(asset)
@@ -90,7 +90,7 @@ class AFMFlightServer(fl.FlightServerBase):
             asset = Asset(config, ticket_info.asset_name)
 
         if asset.connection_type == "passthrough":
-            schema, batches = asset.filesystem.do_get(context, ticket)
+            schema, batches = asset.passthrough.do_get(context, ticket)
         else:
             schema, batches = self._read_asset(asset, ticket_info.columns)
 
