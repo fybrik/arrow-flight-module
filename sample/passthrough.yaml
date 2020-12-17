@@ -5,10 +5,10 @@ data:
     connection:
       type: localfs
   - name: "nyc-taxi.parquet"
-    path: "data.csv"
     connection:
       type: passthrough
       passthrough:
+        passthrough_command: '{"asset": "data.csv", "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]}'
         endpoint_url: "localhost"
         port: "9000"
     transformations:

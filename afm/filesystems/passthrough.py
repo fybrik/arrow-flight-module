@@ -9,18 +9,16 @@ import json
 from pyarrow.flight import FlightInfo, FlightEndpoint, Ticket
 
 class Passthrough:
-    def __init__(self, endpoint, port):
+    def __init__(self, endpoint, port, passthrough_command):
         self.flight_client = fl.connect("grpc://{}:{}".format(endpoint, port))
+        self.passthrough_command = passthrough_command
 
     def batches(self, reader):
         for chunk in reader:
             yield chunk.data
 
-    def get_flight_info(self, cmd, path):
-        cmd_dict = json.loads(cmd.decode())
-        asset_name = cmd_dict["asset"]
-        cmd_dict["asset"] = path
-        flight_info = self.flight_client.get_flight_info(fl.FlightDescriptor.for_command(json.dumps(cmd_dict)))
+    def get_flight_info(self, cmd, asset_name, passthrough_command):
+        flight_info = self.flight_client.get_flight_info(fl.FlightDescriptor.for_command(passthrough_command))
 
         endpoints = []
         for endpoint in flight_info.endpoints:
@@ -56,5 +54,6 @@ class Passthrough:
 
 def passthrough_from_config(passthrough_config):
     endpoint = passthrough_config.get('endpoint_url')
-    port = passthrough_config.get('port')  
-    return Passthrough(endpoint, port)
+    port = passthrough_config.get('port')
+    passthrough_command = passthrough_config.get('passthrough_command')
+    return Passthrough(endpoint, port, passthrough_command)
