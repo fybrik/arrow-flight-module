@@ -39,15 +39,21 @@ class AFMFlightServer(fl.FlightServerBase):
 
         raise ValueError("unsupported format {}".format(asset.format))
 
-    def _infer_schema(self, asset):
-        dataset = self._get_dataset(asset)
+    def _infer_schema(self, asset, columns=None, dataset=None):
+        if not dataset:
+            dataset = self._get_dataset(asset)
+        if columns:
+            l = []
+            for c in columns:
+                l.append(pa.field(c, dataset.schema.types[dataset.schema.get_field_index(c)]))
+            return pa.schema(l)
         return dataset.schema
     
     def _read_asset(self, asset, columns=None):
         dataset = self._get_dataset(asset)
         scanner = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20)
         batches = scanner.to_batches()
-        return dataset.schema, batches
+        return self._infer_schema(asset, columns, dataset), batches
 
     def get_flight_info(self, context, descriptor):
         cmd = AFMCommand(descriptor.command)
@@ -56,7 +62,7 @@ class AFMFlightServer(fl.FlightServerBase):
             asset = Asset(config, cmd.asset_name)
 
         # Infer schema
-        schema = self._infer_schema(asset)
+        schema = self._infer_schema(asset, cmd.columns)
         schema = transform_schema(asset.actions, schema)
 
         # Build endpoint to this server
