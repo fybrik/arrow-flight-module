@@ -6,7 +6,10 @@ metadata:
     name: arrow-flight-module
     version: 0.0.1  # semantic version
 spec:
-  chart: ghcr.io/the-mesh-for-data/arrow-flight-module-chart:latest
+  chart:
+    name: ghcr.io/the-mesh-for-data/arrow-flight-module-chart:latest
+    values:
+      image.tag: latest
   flows:
     - read
   capabilities:
