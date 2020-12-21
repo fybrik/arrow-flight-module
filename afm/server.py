@@ -42,11 +42,17 @@ class AFMFlightServer(fl.FlightServerBase):
     def _infer_schema(self, asset):
         dataset = self._get_dataset(asset)
         return dataset.schema
-    
+
+    def _filter_columns(self, schema, columns):
+        return pa.schema([pa.field(c, schema.field(c).type)
+			for c in columns])
+
     def _read_asset(self, asset, columns=None):
         dataset = self._get_dataset(asset)
         scanner = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20)
         batches = scanner.to_batches()
+        if columns:
+           return self._filter_columns(dataset.schema, columns), batches
         return dataset.schema, batches
 
     def get_flight_info(self, context, descriptor):
@@ -57,6 +63,8 @@ class AFMFlightServer(fl.FlightServerBase):
 
         # Infer schema
         schema = self._infer_schema(asset)
+        if cmd.columns:
+            schema = self._filter_columns(schema, cmd.columns)
         schema = transform_schema(asset.actions, schema)
 
         # Build endpoint to this server
