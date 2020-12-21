@@ -8,6 +8,7 @@ from afm.config import Config
 from afm.pep import registry, consolidate_actions
 from afm.filesystems.s3 import s3filesystem_from_config
 from afm.filesystems.httpfs import httpfs_from_config
+from afm.filesystems.flight import flight_from_config
 
 from pyarrow.fs import LocalFileSystem
 
@@ -15,15 +16,23 @@ class Asset:
     def __init__(self, config: Config, asset_name: str):
         asset_config = config.for_asset(asset_name)
         self._config = asset_config
-        self._filesystem = Asset._filesystem_for_asset(asset_config)
+        self._filesystem_for_asset(asset_config)
         self._actions = Asset._actions_for_asset(asset_config)
         self._format = asset_config.get("format")
         self._path = asset_config.get("path")
         self._name = asset_config.get("name")
 
     @property
+    def connection_type(self):
+        return self._config['connection']['type']
+
+    @property
     def filesystem(self):
         return self._filesystem
+
+    @property
+    def flight(self):
+        return self._flight
 
     @property
     def actions(self):
@@ -41,18 +50,20 @@ class Asset:
     def path(self):
         return self._path
 
-    @staticmethod
-    def _filesystem_for_asset(asset_config: dict):
+    def _filesystem_for_asset(self, asset_config: dict):
         connection = asset_config['connection']
         connection_type = connection['type']
         if connection_type == "s3":
-            return s3filesystem_from_config(connection["s3"])
+            self._filesystem = s3filesystem_from_config(connection["s3"])
         elif connection_type == "localfs":
-            return LocalFileSystem()
+            self._filesystem = LocalFileSystem()
         elif connection_type == "httpfs":
-            return httpfs_from_config()
-        raise ValueError(
-            "Unsupported connection type: {}".format(connection_type))
+            self._filesystem = httpfs_from_config()
+        elif connection_type == "flight":
+            self._flight = flight_from_config(connection["flight"])
+        else:
+            raise ValueError(
+                "Unsupported connection type: {}".format(connection_type))
 
     @staticmethod
     def _actions_for_asset(asset_config: dict):

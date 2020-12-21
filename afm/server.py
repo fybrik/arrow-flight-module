@@ -61,6 +61,9 @@ class AFMFlightServer(fl.FlightServerBase):
         with Config(self.config_path) as config:
             asset = Asset(config, cmd.asset_name)
 
+        if asset.connection_type == 'flight':
+            return asset.flight.get_flight_info(descriptor.command, cmd.asset_name, asset.flight.flight_command)
+
         # Infer schema
         schema = self._infer_schema(asset)
         if cmd.columns:
@@ -86,7 +89,10 @@ class AFMFlightServer(fl.FlightServerBase):
         with Config(self.config_path) as config:
             asset = Asset(config, ticket_info.asset_name)
 
-        schema, batches = self._read_asset(asset, ticket_info.columns)
+        if asset.connection_type == "flight":
+            schema, batches = asset.flight.do_get(context, ticket)
+        else:
+            schema, batches = self._read_asset(asset, ticket_info.columns)
 
         schema = transform_schema(asset.actions, schema)
         batches = transform(asset.actions, batches)        
