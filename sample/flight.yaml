@@ -1,0 +1,20 @@
+data:
+  - name: "data.csv"
+    format: csv
+    path: "/home/cdoron/pilot_arrow_client/docker/data.csv"
+    connection:
+      type: localfs
+  - name: "nyc-taxi.parquet"
+    connection:
+      type: flight
+      flight:
+        flight_command: '{"asset": "data.csv", "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]}'
+        endpoint_url: "localhost"
+        port: "9000"
+    transformations:
+      - action: "Redact"
+        description: "redact stuff"
+        columns:
+          - total_amount
+        options:
+          redactValue: "XXXXX"

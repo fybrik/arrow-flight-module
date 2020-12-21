@@ -13,8 +13,9 @@ request = {
 
 def read_dataset():
     result: fl.FlightStreamReader = client.do_get(info.endpoints[0].ticket)
-    for s in result:
-        pass
+    print(result.read_all().to_pandas())
+    #for s in result:
+    #    pass
 
 def main(port, num_repeat):
     global client, info
