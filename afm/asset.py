@@ -19,6 +19,7 @@ class Asset:
         self._actions = Asset._actions_for_asset(asset_config)
         self._format = asset_config.get("format")
         self._path = asset_config.get("path")
+        self._name = asset_config.get("name")
 
     @property
     def filesystem(self):
@@ -30,15 +31,15 @@ class Asset:
 
     @property
     def name(self):
-        return self._config.get("name")
+        return self._name
 
     @property
     def format(self):
-        return self._config.get("format")
+        return self._format
 
     @property
     def path(self):
-        return self._config.get("path")
+        return self._path
 
     @staticmethod
     def _filesystem_for_asset(asset_config: dict):
