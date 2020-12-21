@@ -8,7 +8,7 @@ from afm.config import Config
 from afm.pep import registry, consolidate_actions
 from afm.filesystems.s3 import s3filesystem_from_config
 from afm.filesystems.httpfs import httpfs_from_config
-from afm.filesystems.passthrough import passthrough_from_config
+from afm.filesystems.flight import flight_from_config
 
 from pyarrow.fs import LocalFileSystem
 
@@ -30,8 +30,8 @@ class Asset:
         return self._filesystem
 
     @property
-    def passthrough(self):
-        return self._passthrough
+    def flight(self):
+        return self._flight
 
     @property
     def actions(self):
@@ -58,8 +58,8 @@ class Asset:
             self._filesystem = LocalFileSystem()
         elif connection_type == "httpfs":
             self._filesystem = httpfs_from_config()
-        elif connection_type == "passthrough":
-            self._passthrough = passthrough_from_config(connection["passthrough"])
+        elif connection_type == "flight":
+            self._flight = flight_from_config(connection["flight"])
         else:
             raise ValueError(
                 "Unsupported connection type: {}".format(connection_type))
