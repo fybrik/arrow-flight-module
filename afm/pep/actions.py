@@ -49,3 +49,18 @@ class RemoveColumns(Action):
         for column in columns:
             schema = schema.remove(schema.get_field_index(column))
         return schema
+
+class FilterColumns(Action):
+    def __call__(self, records: pa.RecordBatch) -> pa.RecordBatch:
+        columns = [column for column in self.columns if column in records.schema.names]
+        indices = [records.schema.get_field_index(c) for c in columns]
+        column_array = records.columns
+        return pa.RecordBatch.from_arrays(
+			[column_array[i] for i in indices],
+			pa.schema([pa.field(c,
+					records.schema.field(c).type)
+				for c in columns]))
+
+    def schema(self, original):
+        columns = [column for column in self.columns if column in original.names]
+        return pa.schema([pa.field(c, original.field(c).type) for c in columns])

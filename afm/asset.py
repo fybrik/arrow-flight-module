@@ -50,6 +50,9 @@ class Asset:
     def path(self):
         return self._path
 
+    def add_action(self, action):
+        self._actions.insert(0, action)
+
     def _filesystem_for_asset(self, asset_config: dict):
         connection = asset_config['connection']
         connection_type = connection['type']
