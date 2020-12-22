@@ -124,7 +124,7 @@ def consolidate_actions(actions):
         result.append(functools.reduce(reduce_actions, list(g)))
     return result
 
-def transform(actions, record_batches, columns=None):
+def transform(actions, record_batches):
     """A generator that applies actions on all record batches.
 
     Args:
@@ -136,14 +136,6 @@ def transform(actions, record_batches, columns=None):
     """
     for record_batch in record_batches:
         item = record_batch
-        if columns:
-            column_array = item.columns
-            indices = [item.schema.get_field_index(c) for c in columns]
-            item = pa.RecordBatch.from_arrays(
-			    [column_array[i] for i in indices],
-			    pa.schema([pa.field(c,
-					    item.schema.field(c).type)
-				    for c in columns]))
         for action in actions:
             item = action(item)
         yield item

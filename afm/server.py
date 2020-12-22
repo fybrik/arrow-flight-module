@@ -14,7 +14,7 @@ from pyarrow.fs import FileSelector
 from .asset import Asset
 from .command import AFMCommand
 from .config import Config
-from .pep import transform, transform_schema
+from .pep import transform, transform_schema, actions
 from .ticket import AFMTicket
 
 
@@ -104,11 +104,14 @@ class AFMFlightServer(fl.FlightServerBase):
         if asset.connection_type == "flight":
             schema, batches = asset.flight.do_get(context, ticket)
             schema = self._filter_columns(schema, ticket_info.columns)
+            if ticket_info.columns:
+                asset.add_action(actions.FilterColumns(columns=ticket_info.columns, description="", options=None))
+
         else:
             schema, batches = self._read_asset(asset, ticket_info.columns)
 
         schema = transform_schema(asset.actions, schema)
-        batches = transform(asset.actions, batches, ticket_info.columns)
+        batches = transform(asset.actions, batches)
         return fl.GeneratorStream(schema, batches)
 
     def do_put(self, context, descriptor, reader, writer):
