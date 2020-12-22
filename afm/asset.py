@@ -27,10 +27,6 @@ class Asset:
         return self._config['connection']['type']
 
     @property
-    def connection_type(self):
-        return self._config['connection']['type']
-
-    @property
     def filesystem(self):
         return self._filesystem
 

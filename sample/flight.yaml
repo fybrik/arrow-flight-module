@@ -8,7 +8,7 @@ data:
     connection:
       type: flight
       flight:
-        flight_command: '{"asset": "data.csv", "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]}'
+        flight_command: '{"asset": "data.csv"}'
         endpoint_url: "localhost"
         port: "9000"
     transformations:

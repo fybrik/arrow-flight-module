@@ -6,7 +6,7 @@
 import pyarrow.flight as fl
 import json
 
-from pyarrow.flight import FlightInfo, FlightEndpoint, Ticket
+from pyarrow.flight import FlightEndpoint, Ticket
 
 class Flight:
     def __init__(self, endpoint, port, flight_command):
@@ -17,18 +17,8 @@ class Flight:
         for chunk in reader:
             yield chunk.data
 
-    def get_flight_info(self, cmd, asset_name, flight_command):
-        flight_info = self.flight_client.get_flight_info(fl.FlightDescriptor.for_command(flight_command))
-
-        endpoints = []
-        for endpoint in flight_info.endpoints:
-            ticket_dict = json.loads(endpoint.ticket.ticket.decode())
-            ticket_dict["asset_name"] = asset_name
-            ticket_dict["flight_ticket"] = endpoint.ticket.ticket.decode()
-            endpoints.append(FlightEndpoint(Ticket(json.dumps(ticket_dict)), endpoint.locations))
-        return FlightInfo(flight_info.schema, flight_info.descriptor,
-                endpoints, flight_info.total_records,
-                flight_info.total_bytes)
+    def get_flight_info(self, flight_command):
+        return self.flight_client.get_flight_info(fl.FlightDescriptor.for_command(flight_command))
 
     def do_get(self, context, ticket):
         ticket_dict = json.loads(ticket.ticket.decode())
