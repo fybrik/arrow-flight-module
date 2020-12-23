@@ -11,19 +11,20 @@ from afm.filesystems.httpfs import httpfs_from_config
 
 from pyarrow.fs import LocalFileSystem
 
+def asset_from_config(config: Config, asset_name: str):
+    if config.connection_type(asset_name) in ['s3', 'httpfs', 'localfs']:
+        return FileSystemAsset(config, asset_name)
+    raise ValueError(
+        "Unsupported connection type: {}".format(config.connection_type))
+
 class Asset:
     def __init__(self, config: Config, asset_name: str):
         asset_config = config.for_asset(asset_name)
         self._config = asset_config
-        self._filesystem = Asset._filesystem_for_asset(asset_config)
         self._actions = Asset._actions_for_asset(asset_config)
         self._format = asset_config.get("format")
         self._path = asset_config.get("path")
         self._name = asset_config.get("name")
-
-    @property
-    def filesystem(self):
-        return self._filesystem
 
     @property
     def actions(self):
@@ -42,6 +43,22 @@ class Asset:
         return self._path
 
     @staticmethod
+    def _actions_for_asset(asset_config: dict):
+        def build_action(x):
+            cls = registry[x["action"]]
+            return cls(description=x["description"], columns=x.get("columns"), options=x.get("options"))
+
+        # Create a list of Action objects from the transformations configuration
+        actions = [build_action(x) for x in asset_config.get("transformations", [])]
+        # Consolidate identical actions to keep the asset.actions efficient
+        return consolidate_actions(actions)
+
+class FileSystemAsset(Asset):
+    def __init__(self, config: Config, asset_name: str):
+        super().__init__(config, asset_name)
+        self._filesystem = FileSystemAsset._filesystem_for_asset(self._config)
+
+    @staticmethod
     def _filesystem_for_asset(asset_config: dict):
         connection = asset_config['connection']
         connection_type = connection['type']
@@ -54,13 +71,7 @@ class Asset:
         raise ValueError(
             "Unsupported connection type: {}".format(connection_type))
 
-    @staticmethod
-    def _actions_for_asset(asset_config: dict):
-        def build_action(x):
-            cls = registry[x["action"]]
-            return cls(description=x["description"], columns=x.get("columns"), options=x.get("options"))
+    @property
+    def filesystem(self):
+        return self._filesystem
 
-        # Create a list of Action objects from the transformations configuration
-        actions = [build_action(x) for x in asset_config.get("transformations", [])]
-        # Consolidate identical actions to keep the asset.actions efficient
-        return consolidate_actions(actions)
