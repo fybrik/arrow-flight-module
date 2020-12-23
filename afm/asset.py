@@ -8,12 +8,16 @@ from afm.config import Config
 from afm.pep import registry, consolidate_actions
 from afm.filesystems.s3 import s3filesystem_from_config
 from afm.filesystems.httpfs import httpfs_from_config
+from afm.flight.flight import flight_from_config
 
 from pyarrow.fs import LocalFileSystem
 
 def asset_from_config(config: Config, asset_name: str):
-    if config.connection_type(asset_name) in ['s3', 'httpfs', 'localfs']:
+    connection_type = config.connection_type(asset_name)
+    if connection_type in ['s3', 'httpfs', 'localfs']:
         return FileSystemAsset(config, asset_name)
+    elif connection_type == 'flight':
+        return FlightAsset(config, asset_name)
     raise ValueError(
         "Unsupported connection type: {}".format(config.connection_type))
 
@@ -25,6 +29,9 @@ class Asset:
         self._format = asset_config.get("format")
         self._path = asset_config.get("path")
         self._name = asset_config.get("name")
+
+    def add_action(self, action):
+        self._actions.insert(0, action)
 
     @property
     def actions(self):
@@ -41,6 +48,10 @@ class Asset:
     @property
     def path(self):
         return self._path
+
+    @property
+    def connection_type(self):
+        return self._config['connection']['type']
 
     @staticmethod
     def _actions_for_asset(asset_config: dict):
@@ -75,3 +86,11 @@ class FileSystemAsset(Asset):
     def filesystem(self):
         return self._filesystem
 
+class FlightAsset(Asset):
+    def __init__(self, config: Config, asset_name: str):
+        super().__init__(config, asset_name)
+        self._flight = flight_from_config(self._config['connection']['flight'])
+
+    @property
+    def flight(self):
+        return self._flight
