@@ -11,7 +11,7 @@ import pyarrow.csv as csv
 import pyarrow.dataset as ds
 from pyarrow.fs import FileSelector
 
-from .asset import Asset
+from .asset import asset_from_config
 from .command import AFMCommand
 from .config import Config
 from .pep import transform, transform_schema
@@ -59,7 +59,7 @@ class AFMFlightServer(fl.FlightServerBase):
         cmd = AFMCommand(descriptor.command)
 
         with Config(self.config_path) as config:
-            asset = Asset(config, cmd.asset_name)
+            asset = asset_from_config(config, cmd.asset_name)
 
         # Infer schema
         schema = self._infer_schema(asset)
@@ -84,7 +84,7 @@ class AFMFlightServer(fl.FlightServerBase):
             raise ValueError("Columns must be specified in ticket")
 
         with Config(self.config_path) as config:
-            asset = Asset(config, ticket_info.asset_name)
+            asset = asset_from_config(config, ticket_info.asset_name)
 
         schema, batches = self._read_asset(asset, ticket_info.columns)
 

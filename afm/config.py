@@ -23,3 +23,9 @@ class Config:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
+    def connection_type(self, asset_name: str) -> str:
+       asset_info = self.for_asset(asset_name)
+       if 'connection' in asset_info:
+           return asset_info['connection'].get('type')
+       return None
