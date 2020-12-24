@@ -73,8 +73,6 @@ class AFMFlightServer(fl.FlightServerBase):
         schema = transform_schema(asset.actions, schema)
 
         # Build endpoint to this server
-        total_records = -1
-        total_bytes = -1
         endpoints = []
         locations = []
         local_address = os.getenv("MY_POD_IP")
@@ -82,8 +80,6 @@ class AFMFlightServer(fl.FlightServerBase):
             locations += "grpc://{}:{}".format(local_address, self.port)
 
         if asset.connection_type == 'flight':
-            total_records = passthrough_flight_info.total_records
-            total_bytes = passthrough_flight_info.total_bytes
             for endpoint in passthrough_flight_info.endpoints:
                 ticket = AFMTicket(cmd.asset_name, schema.names, endpoint.ticket.ticket.decode())
                 endpoints.append(fl.FlightEndpoint(ticket.toJSON(), locations))
@@ -92,7 +88,7 @@ class AFMFlightServer(fl.FlightServerBase):
             ticket = AFMTicket(cmd.asset_name, schema.names)
             endpoints.append(fl.FlightEndpoint(ticket.toJSON(), locations))
 
-        return fl.FlightInfo(schema, descriptor, endpoints, total_records, total_bytes)
+        return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
 
     def do_get(self, context, ticket: fl.Ticket):
         ticket_info: AFMTicket = AFMTicket.fromJSON(ticket.ticket)
