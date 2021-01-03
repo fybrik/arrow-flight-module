@@ -14,7 +14,7 @@ pylint = "*"
 
 [packages]
 pandas = "==1.0.5"
-pyarrow = "==1.0.1"
+pyarrow = "==2.0.0"
 schemed-yaml-config = "==0.0.3"
 requests = "*"
 fsspec = "==0.8.4"
