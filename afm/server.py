@@ -14,7 +14,7 @@ from pyarrow.fs import FileSelector
 from .asset import asset_from_config
 from .command import AFMCommand
 from .config import Config
-from .pep import transform, transform_schema
+from .pep import transform, transform_schema, actions
 from .ticket import AFMTicket
 
 
@@ -61,20 +61,32 @@ class AFMFlightServer(fl.FlightServerBase):
         with Config(self.config_path) as config:
             asset = asset_from_config(config, cmd.asset_name)
 
-        # Infer schema
-        schema = self._infer_schema(asset)
+        if asset.connection_type == 'flight':
+            passthrough_flight_info = asset.flight.get_flight_info()
+            schema = passthrough_flight_info.schema
+        else:
+            # Infer schema
+            schema = self._infer_schema(asset)
+
         if cmd.columns:
             schema = self._filter_columns(schema, cmd.columns)
         schema = transform_schema(asset.actions, schema)
 
         # Build endpoint to this server
         endpoints = []
-        ticket = AFMTicket(cmd.asset_name, schema.names)
         locations = []
         local_address = os.getenv("MY_POD_IP")
         if local_address:
             locations += "grpc://{}:{}".format(local_address, self.port)
-        endpoints.append(fl.FlightEndpoint(ticket.toJSON(), locations))
+
+        if asset.connection_type == 'flight':
+            for endpoint in passthrough_flight_info.endpoints:
+                ticket = AFMTicket(cmd.asset_name, schema.names, endpoint.ticket.ticket.decode())
+                endpoints.append(fl.FlightEndpoint(ticket.toJSON(), locations))
+        else:
+            # Build endpoint to this server
+            ticket = AFMTicket(cmd.asset_name, schema.names)
+            endpoints.append(fl.FlightEndpoint(ticket.toJSON(), locations))
 
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
 
@@ -86,10 +98,18 @@ class AFMFlightServer(fl.FlightServerBase):
         with Config(self.config_path) as config:
             asset = asset_from_config(config, ticket_info.asset_name)
 
-        schema, batches = self._read_asset(asset, ticket_info.columns)
+        if asset.connection_type == "flight":
+            schema, batches = asset.flight.do_get(context, ticket)
+            if ticket_info.columns:
+                asset.add_action(actions.FilterColumns(
+					columns=ticket_info.columns,
+					description="filter columns",
+					options=None))
+        else:
+            schema, batches = self._read_asset(asset, ticket_info.columns)
 
         schema = transform_schema(asset.actions, schema)
-        batches = transform(asset.actions, batches)        
+        batches = transform(asset.actions, batches)
         return fl.GeneratorStream(schema, batches)
 
     def do_put(self, context, descriptor, reader, writer):
