@@ -2,6 +2,8 @@
 # Copyright 2020 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 #
+
+import random
 import os
 
 import pyarrow as pa
@@ -16,6 +18,7 @@ from .command import AFMCommand
 from .config import Config
 from .pep import transform, transform_schema, actions
 from .ticket import AFMTicket
+from .worker import workers_from_config
 
 
 class AFMFlightServer(fl.FlightServerBase):
@@ -55,11 +58,24 @@ class AFMFlightServer(fl.FlightServerBase):
            return self._filter_columns(dataset.schema, columns), batches
         return dataset.schema, batches
 
+    def _get_locations(self, workers):
+        locations = []
+        if workers:
+            chosen_worker = random.choice(workers)
+            locations.append("grpc://{}:{}".format(chosen_worker.address, chosen_worker.port))
+        else:
+            local_address = os.getenv("MY_POD_IP")
+            if local_address:
+                locations += "grpc://{}:{}".format(local_address, self.port)
+
+        return locations
+
     def get_flight_info(self, context, descriptor):
         cmd = AFMCommand(descriptor.command)
 
         with Config(self.config_path) as config:
             asset = asset_from_config(config, cmd.asset_name)
+            workers = workers_from_config(config.workers)
 
         if asset.connection_type == 'flight':
             passthrough_flight_info = asset.flight.get_flight_info()
@@ -73,11 +89,8 @@ class AFMFlightServer(fl.FlightServerBase):
         schema = transform_schema(asset.actions, schema)
 
         # Build endpoint to this server
+        locations = self._get_locations(workers)
         endpoints = []
-        locations = []
-        local_address = os.getenv("MY_POD_IP")
-        if local_address:
-            locations += "grpc://{}:{}".format(local_address, self.port)
 
         if asset.connection_type == 'flight':
             for endpoint in passthrough_flight_info.endpoints:
