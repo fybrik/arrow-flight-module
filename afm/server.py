@@ -58,6 +58,13 @@ class AFMFlightServer(fl.FlightServerBase):
            return self._filter_columns(dataset.schema, columns), batches
         return dataset.schema, batches
 
+    def _get_endpoints(self, tickets, locations):
+        endpoints = []
+        for ticket in tickets:
+            endpoints.append(fl.FlightEndpoint(ticket.toJSON(), locations))
+        return endpoints
+
+
     def _get_locations(self, workers):
         locations = []
         if workers:
@@ -90,17 +97,16 @@ class AFMFlightServer(fl.FlightServerBase):
 
         # Build endpoint to this server
         locations = self._get_locations(workers)
-        endpoints = []
 
+        tickets = []
         if asset.connection_type == 'flight':
             for endpoint in passthrough_flight_info.endpoints:
-                ticket = AFMTicket(cmd.asset_name, schema.names, endpoint.ticket.ticket.decode())
-                endpoints.append(fl.FlightEndpoint(ticket.toJSON(), locations))
+                tickets.append(AFMTicket(cmd.asset_name, schema.names, endpoint.ticket.ticket.decode()))
         else:
             # Build endpoint to this server
-            ticket = AFMTicket(cmd.asset_name, schema.names)
-            endpoints.append(fl.FlightEndpoint(ticket.toJSON(), locations))
+            tickets.append(AFMTicket(cmd.asset_name, schema.names))
 
+        endpoints = self._get_endpoints(tickets, locations)
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
 
     def do_get(self, context, ticket: fl.Ticket):
