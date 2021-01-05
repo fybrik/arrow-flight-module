@@ -12,12 +12,13 @@ request = {
 }
 
 def read_dataset():
-    if info.endpoints[0].locations:
-        client = fl.connect(info.endpoints[0].locations[0])
-    result: fl.FlightStreamReader = client.do_get(info.endpoints[0].ticket)
-    print(result.read_all().to_pandas())
-    #for s in result:
-    #    pass
+    for endpoint in info.endpoints:
+        if endpoint.locations:
+            client = fl.connect(endpoint.locations[0])
+        result: fl.FlightStreamReader = client.do_get(endpoint.ticket)
+        print(result.read_all().to_pandas())
+        #for s in result:
+        #    pass
 
 def main(port, num_repeat):
     global client, info

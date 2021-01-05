@@ -7,10 +7,11 @@ import json
 
 # TODO: replace with a real ticket and not just a copy of command
 class AFMTicket:
-    def __init__(self, asset_name, columns, flight_ticket=None):
+    def __init__(self, asset_name, columns, flight_ticket=None, chunk_path=None):
         self._asset_name = asset_name
         self._columns = columns
         self._flight_ticket = flight_ticket
+        self._chunk_path = chunk_path
 
     @staticmethod
     def fromJSON(raw):
@@ -21,6 +22,7 @@ class AFMTicket:
             "asset_name": self.asset_name,
             "columns": self.columns,
             "flight_ticket": self.flight_ticket,
+            "chunk_path": self.chunk_path,
         })
 
     @property
@@ -34,3 +36,7 @@ class AFMTicket:
     @property
     def flight_ticket(self) -> str:
         return self._flight_ticket
+
+    @property
+    def chunk_path(self) -> str:
+        return self._chunk_path

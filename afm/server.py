@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import random
 import os
 
 import pyarrow as pa
@@ -27,31 +26,35 @@ class AFMFlightServer(fl.FlightServerBase):
             "grpc://0.0.0.0:{}".format(port), *args, **kwargs)
         self.config_path = config_path
 
-    def _get_dataset(self, asset):
+    def _get_dataset(self, asset, chunk_path=None):
+        if chunk_path:
+            asset_path = chunk_path
+        else:
+            asset_path = asset.path
         # FIXME(roee88): bypass https://issues.apache.org/jira/browse/ARROW-7867
-        selector = FileSelector(asset.path, allow_not_found=True, recursive=True)
+        selector = FileSelector(asset_path, allow_not_found=True, recursive=True)
         try:
             data_files = [f.path for f in asset.filesystem.get_file_info(selector) if f.size]
         except NotADirectoryError:
             data_files = None
         if not data_files:
-            data_files = [asset.path] # asset.path is probably a single file
+            data_files = [asset_path] # asset.path is probably a single file
 
         if asset.format == "csv" or asset.format == "parquet":
-            return ds.dataset(data_files, format=asset.format, filesystem=asset.filesystem)
+            return ds.dataset(data_files, format=asset.format, filesystem=asset.filesystem), data_files
 
         raise ValueError("unsupported format {}".format(asset.format))
 
     def _infer_schema(self, asset):
-        dataset = self._get_dataset(asset)
-        return dataset.schema
+        dataset, data_files = self._get_dataset(asset)
+        return dataset.schema, data_files
 
     def _filter_columns(self, schema, columns):
         return pa.schema([pa.field(c, schema.field(c).type)
 			for c in columns])
 
-    def _read_asset(self, asset, columns=None):
-        dataset = self._get_dataset(asset)
+    def _read_asset(self, asset, columns=None, chunk_path=None):
+        dataset, data_files = self._get_dataset(asset, chunk_path)
         scanner = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20)
         batches = scanner.to_batches()
         if columns:
@@ -60,16 +63,18 @@ class AFMFlightServer(fl.FlightServerBase):
 
     def _get_endpoints(self, tickets, locations):
         endpoints = []
+        i = 0
         for ticket in tickets:
-            endpoints.append(fl.FlightEndpoint(ticket.toJSON(), locations))
+            endpoints.append(fl.FlightEndpoint(ticket.toJSON(), [locations[i]]))
+            i = (i + 1) % len(locations)
         return endpoints
 
 
     def _get_locations(self, workers):
         locations = []
         if workers:
-            chosen_worker = random.choice(workers)
-            locations.append("grpc://{}:{}".format(chosen_worker.address, chosen_worker.port))
+            for worker in workers:
+                locations.append("grpc://{}:{}".format(worker.address, worker.port))
         else:
             local_address = os.getenv("MY_POD_IP")
             if local_address:
@@ -89,7 +94,7 @@ class AFMFlightServer(fl.FlightServerBase):
             schema = passthrough_flight_info.schema
         else:
             # Infer schema
-            schema = self._infer_schema(asset)
+            schema, data_files = self._infer_schema(asset)
 
         if cmd.columns:
             schema = self._filter_columns(schema, cmd.columns)
@@ -104,7 +109,8 @@ class AFMFlightServer(fl.FlightServerBase):
                 tickets.append(AFMTicket(cmd.asset_name, schema.names, endpoint.ticket.ticket.decode()))
         else:
             # Build endpoint to this server
-            tickets.append(AFMTicket(cmd.asset_name, schema.names))
+            for f in data_files:
+                tickets.append(AFMTicket(cmd.asset_name, schema.names, chunk_path=f))
 
         endpoints = self._get_endpoints(tickets, locations)
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
@@ -125,7 +131,7 @@ class AFMFlightServer(fl.FlightServerBase):
 					description="filter columns",
 					options=None))
         else:
-            schema, batches = self._read_asset(asset, ticket_info.columns)
+            schema, batches = self._read_asset(asset, ticket_info.columns, ticket_info.chunk_path)
 
         schema = transform_schema(asset.actions, schema)
         batches = transform(asset.actions, batches)
