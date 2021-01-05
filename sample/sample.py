@@ -5,20 +5,29 @@
 from timeit import repeat
 import pyarrow.flight as fl
 import json
+import threading
 
 request = {
     "asset": "nyc-taxi.parquet", 
     "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]
 }
 
+def read_from_endpoint(endpoint):
+    if endpoint.locations:
+        client = fl.connect(endpoint.locations[0])
+    result: fl.FlightStreamReader = client.do_get(endpoint.ticket)
+    print(result.read_all().to_pandas())
+    #for s in result:
+    #    pass
+
 def read_dataset():
+    threads = []
     for endpoint in info.endpoints:
-        if endpoint.locations:
-            client = fl.connect(endpoint.locations[0])
-        result: fl.FlightStreamReader = client.do_get(endpoint.ticket)
-        print(result.read_all().to_pandas())
-        #for s in result:
-        #    pass
+        t = threading.Thread(target=read_from_endpoint, args=(endpoint,))
+        threads.append(t)
+        t.start()
+    for t in threads:
+        t.join()
 
 def main(port, num_repeat):
     global client, info
