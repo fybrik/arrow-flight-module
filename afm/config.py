@@ -18,6 +18,10 @@ class Config:
         raise ValueError(
             "Requested config for undefined asset: {}".format(asset_name))
 
+    @property
+    def workers(self) -> dict:
+        return self.values.get('workers', [])
+
     def __enter__(self):
         return self
 

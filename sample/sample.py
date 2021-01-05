@@ -12,6 +12,8 @@ request = {
 }
 
 def read_dataset():
+    if info.endpoints[0].locations:
+        client = fl.connect(info.endpoints[0].locations[0])
     result: fl.FlightStreamReader = client.do_get(info.endpoints[0].ticket)
     print(result.read_all().to_pandas())
     #for s in result:

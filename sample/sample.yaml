@@ -1,3 +1,7 @@
+workers:
+  - name: "main"
+    address: "localhost"
+    port: 8080
 data:
   - name: "nyc-taxi.parquet"
     format: parquet
