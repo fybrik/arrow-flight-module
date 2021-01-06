@@ -18,7 +18,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     loglevel = getattr(logging, args.loglevel.upper(), logging.WARNING)
-    logging.basicConfig(level=loglevel)
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=loglevel)
 
     server = AFMFlightServer(args.config, args.port)
     server.serve()
