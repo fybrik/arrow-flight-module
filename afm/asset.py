@@ -12,22 +12,25 @@ from afm.flight.flight import flight_from_config
 
 from pyarrow.fs import LocalFileSystem
 
-def asset_from_config(config: Config, asset_name: str):
+def asset_from_config(config: Config, asset_name: str, chunk_path=None):
     connection_type = config.connection_type(asset_name)
     if connection_type in ['s3', 'httpfs', 'localfs']:
-        return FileSystemAsset(config, asset_name)
+        return FileSystemAsset(config, asset_name, chunk_path)
     elif connection_type == 'flight':
         return FlightAsset(config, asset_name)
     raise ValueError(
         "Unsupported connection type: {}".format(config.connection_type))
 
 class Asset:
-    def __init__(self, config: Config, asset_name: str):
+    def __init__(self, config: Config, asset_name: str, chunk_path=None):
         asset_config = config.for_asset(asset_name)
         self._config = asset_config
         self._actions = Asset._actions_for_asset(asset_config)
         self._format = asset_config.get("format")
-        self._path = asset_config.get("path")
+        if chunk_path:
+            self._path = chunk_path
+        else:
+            self._path = asset_config.get("path")
         self._name = asset_config.get("name")
 
     def add_action(self, action):
@@ -65,8 +68,8 @@ class Asset:
         return consolidate_actions(actions)
 
 class FileSystemAsset(Asset):
-    def __init__(self, config: Config, asset_name: str):
-        super().__init__(config, asset_name)
+    def __init__(self, config: Config, asset_name: str, chunk_path=None):
+        super().__init__(config, asset_name, chunk_path)
         self._filesystem = FileSystemAsset._filesystem_for_asset(self._config)
 
     @staticmethod

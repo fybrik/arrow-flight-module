@@ -26,19 +26,15 @@ class AFMFlightServer(fl.FlightServerBase):
             "grpc://0.0.0.0:{}".format(port), *args, **kwargs)
         self.config_path = config_path
 
-    def _get_dataset(self, asset, chunk_path=None):
-        if chunk_path:
-            asset_path = chunk_path
-        else:
-            asset_path = asset.path
+    def _get_dataset(self, asset):
         # FIXME(roee88): bypass https://issues.apache.org/jira/browse/ARROW-7867
-        selector = FileSelector(asset_path, allow_not_found=True, recursive=True)
+        selector = FileSelector(asset.path, allow_not_found=True, recursive=True)
         try:
             data_files = [f.path for f in asset.filesystem.get_file_info(selector) if f.size]
         except NotADirectoryError:
             data_files = None
         if not data_files:
-            data_files = [asset_path] # asset.path is probably a single file
+            data_files = [asset.path] # asset.path is probably a single file
 
         if asset.format == "csv" or asset.format == "parquet":
             return ds.dataset(data_files, format=asset.format, filesystem=asset.filesystem), data_files
@@ -53,8 +49,8 @@ class AFMFlightServer(fl.FlightServerBase):
         return pa.schema([pa.field(c, schema.field(c).type)
 			for c in columns])
 
-    def _read_asset(self, asset, columns=None, chunk_path=None):
-        dataset, data_files = self._get_dataset(asset, chunk_path)
+    def _read_asset(self, asset, columns=None):
+        dataset, data_files = self._get_dataset(asset)
         scanner = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20)
         batches = scanner.to_batches()
         if columns:
@@ -121,7 +117,7 @@ class AFMFlightServer(fl.FlightServerBase):
             raise ValueError("Columns must be specified in ticket")
 
         with Config(self.config_path) as config:
-            asset = asset_from_config(config, ticket_info.asset_name)
+            asset = asset_from_config(config, ticket_info.asset_name, chunk_path=ticket_info.chunk_path)
 
         if asset.connection_type == "flight":
             schema, batches = asset.flight.do_get(context, ticket)
@@ -131,7 +127,7 @@ class AFMFlightServer(fl.FlightServerBase):
 					description="filter columns",
 					options=None))
         else:
-            schema, batches = self._read_asset(asset, ticket_info.columns, ticket_info.chunk_path)
+            schema, batches = self._read_asset(asset, ticket_info.columns)
 
         schema = transform_schema(asset.actions, schema)
         batches = transform(asset.actions, batches)
