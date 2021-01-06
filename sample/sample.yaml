@@ -5,7 +5,7 @@ workers:
 data:
   - name: "nyc-taxi.parquet"
     format: parquet
-    path: "ursa-labs-taxi-data/2019/06/data.parquet"
+    path: "ursa-labs-taxi-data/2019"
     connection:
       type: s3
       s3:
