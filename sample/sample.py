@@ -15,6 +15,8 @@ request = {
 def read_from_endpoint(endpoint):
     if endpoint.locations:
         client = fl.connect(endpoint.locations[0])
+    else:
+        client = fl.connect("grpc://localhost:{}".format(args.port))
     result: fl.FlightStreamReader = client.do_get(endpoint.ticket)
     print(result.read_all().to_pandas())
     #for s in result:
