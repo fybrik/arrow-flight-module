@@ -61,8 +61,11 @@ class AFMFlightServer(fl.FlightServerBase):
         endpoints = []
         i = 0
         for ticket in tickets:
-            endpoints.append(fl.FlightEndpoint(ticket.toJSON(), [locations[i]]))
-            i = (i + 1) % len(locations)
+            if locations:
+                endpoints.append(fl.FlightEndpoint(ticket.toJSON(), [locations[i]]))
+                i = (i + 1) % len(locations)
+            else:
+                endpoints.append(fl.FlightEndpoint(ticket.toJSON(), []))
         return endpoints
 
 
