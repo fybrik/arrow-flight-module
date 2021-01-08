@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import logging
 import os
 
 import pyarrow as pa
@@ -82,6 +83,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return locations
 
     def get_flight_info(self, context, descriptor):
+        logging.info('get_flight_info: command={}'.format(descriptor.command))
         cmd = AFMCommand(descriptor.command)
 
         with Config(self.config_path) as config:
@@ -115,6 +117,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
 
     def do_get(self, context, ticket: fl.Ticket):
+        logging.info('do_get: ticket={}'.format(ticket.ticket))
         ticket_info: AFMTicket = AFMTicket.fromJSON(ticket.ticket)
         if ticket_info.columns is None:
             raise ValueError("Columns must be specified in ticket")
