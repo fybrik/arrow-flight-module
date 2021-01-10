@@ -7,10 +7,14 @@ import pyarrow.flight as fl
 import json
 
 from pyarrow.flight import FlightEndpoint, Ticket
+from .auth_handlers import HttpBasicClientAuthHandler
 
 class Flight:
-    def __init__(self, endpoint, port, flight_command):
+    def __init__(self, endpoint, port, flight_command, auth_user, auth_password):
         self.flight_client = fl.connect("grpc://{}:{}".format(endpoint, port))
+        if auth_user or auth_password:
+            self.flight_client.authenticate(
+                    HttpBasicClientAuthHandler(auth_user, auth_password))
         self.flight_command = flight_command
 
     def batches(self, reader):
@@ -29,4 +33,6 @@ def flight_from_config(flight_config):
     endpoint = flight_config.get('endpoint_url')
     port = flight_config.get('port')
     flight_command = flight_config.get('flight_command')
-    return Flight(endpoint, port, flight_command)
+    auth_user = flight_config.get('auth_user', None)
+    auth_password = flight_config.get('auth_password', None)
+    return Flight(endpoint, port, flight_command, auth_user, auth_password)
