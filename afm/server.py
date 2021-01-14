@@ -12,6 +12,7 @@ import pyarrow.parquet as pq
 import pyarrow.csv as csv
 import pyarrow.dataset as ds
 from pyarrow.fs import FileSelector
+from pyarrow.lib import tobytes
 
 from .asset import asset_from_config
 from .command import AFMCommand
@@ -26,7 +27,7 @@ class myAuthHandler(fl.ServerAuthHandler):
 
     def authenticate(self, outgoing, incoming):
         buf = incoming.read()
-        auth = flight.BasicAuth.deserialize(buf)
+        auth = fl.BasicAuth.deserialize(buf)
         outgoing.write(tobytes(auth.username))
 
     def is_valid(self, token):
