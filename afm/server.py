@@ -20,10 +20,23 @@ from .pep import transform, transform_schema, actions
 from .ticket import AFMTicket
 from .worker import workers_from_config
 
+class myAuthHandler(fl.ServerAuthHandler):
+    def __init__(self):
+         super().__init__()
+
+    def authenticate(self, outgoing, incoming):
+        buf = incoming.read()
+        auth = flight.BasicAuth.deserialize(buf)
+        outgoing.write(tobytes(auth.username))
+
+    def is_valid(self, token):
+        return token
+
 class AFMFlightServer(fl.FlightServerBase):
     def __init__(self, config_path: str, port: int, *args, **kwargs):
         super(AFMFlightServer, self).__init__(
-            "grpc://0.0.0.0:{}".format(port), *args, **kwargs)
+            "grpc://0.0.0.0:{}".format(port), auth_handler=myAuthHandler(),
+            *args, **kwargs)
         self.config_path = config_path
 
     def _get_dataset(self, asset):
