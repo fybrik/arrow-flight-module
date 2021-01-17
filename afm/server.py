@@ -12,7 +12,6 @@ import pyarrow.parquet as pq
 import pyarrow.csv as csv
 import pyarrow.dataset as ds
 from pyarrow.fs import FileSelector
-from pyarrow.lib import tobytes
 
 from .asset import asset_from_config
 from .command import AFMCommand
@@ -20,24 +19,16 @@ from .config import Config
 from .pep import transform, transform_schema, actions
 from .ticket import AFMTicket
 from .worker import workers_from_config
-
-class myAuthHandler(fl.ServerAuthHandler):
-    def __init__(self):
-         super().__init__()
-
-    def authenticate(self, outgoing, incoming):
-        buf = incoming.read()
-        auth = fl.BasicAuth.deserialize(buf)
-        outgoing.write(tobytes(auth.username))
-
-    def is_valid(self, token):
-        return token
+from .auth import AFMAuthHandler
 
 class AFMFlightServer(fl.FlightServerBase):
     def __init__(self, config_path: str, port: int, *args, **kwargs):
-        super(AFMFlightServer, self).__init__(
-            "grpc://0.0.0.0:{}".format(port), auth_handler=myAuthHandler(),
-            *args, **kwargs)
+
+        with Config(config_path) as config:
+            super(AFMFlightServer, self).__init__(
+                "grpc://0.0.0.0:{}".format(port),
+                auth_handler=AFMAuthHandler(config.auth),
+                *args, **kwargs)
         self.config_path = config_path
 
     def _get_dataset(self, asset):
