@@ -1,10 +1,8 @@
 auth:
   basic:
     credentials:
-    - username: "qqq"
-      password: "moo"
-    - username: "user"
-      password: "password"
+      qqq: "moo"
+      user: "password"
 workers:
   - name: "main"
     address: "localhost"

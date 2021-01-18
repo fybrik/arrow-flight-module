@@ -16,9 +16,9 @@ class AFMAuthHandler(fl.ServerAuthHandler):
         buf = incoming.read()
         auth = fl.BasicAuth.deserialize(buf)
         if self.type == 'basic':
-            if auth.username not in self.creds:
+            if str(auth.username.decode()) not in self.creds:
                 raise fl.FlightUnauthenticatedError("unknown user")
-            if self.creds[auth.username] != auth.password:
+            if self.creds[auth.username.decode()] != auth.password.decode():
                 raise fl.FlightUnauthenticatedError("wrong password")
         outgoing.write(tobytes(auth.username))
 
@@ -26,6 +26,6 @@ class AFMAuthHandler(fl.ServerAuthHandler):
         if self.type == 'basic':
             if not token:
                 raise fl.FlightUnauthenticatedError("token not provided")
-            if token not in self.creds:
+            if token.decode() not in self.creds:
                 raise fl.FlightUnauthenticatedError("unknown user")
         return token
