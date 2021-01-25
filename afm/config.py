@@ -19,8 +19,12 @@ class Config:
             "Requested config for undefined asset: {}".format(asset_name))
 
     @property
-    def workers(self) -> dict:
+    def workers(self) -> list:
         return self.values.get('workers', [])
+
+    @property
+    def auth(self) -> dict:
+        return self.values.get('auth', {})
 
     def __enter__(self):
         return self

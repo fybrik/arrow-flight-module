@@ -19,11 +19,16 @@ from .config import Config
 from .pep import transform, transform_schema, actions
 from .ticket import AFMTicket
 from .worker import workers_from_config
+from .auth import AFMAuthHandler
 
 class AFMFlightServer(fl.FlightServerBase):
     def __init__(self, config_path: str, port: int, *args, **kwargs):
-        super(AFMFlightServer, self).__init__(
-            "grpc://0.0.0.0:{}".format(port), *args, **kwargs)
+
+        with Config(config_path) as config:
+            super(AFMFlightServer, self).__init__(
+                "grpc://0.0.0.0:{}".format(port),
+                auth_handler=AFMAuthHandler(config.auth),
+                *args, **kwargs)
         self.config_path = config_path
 
     def _get_dataset(self, asset):
