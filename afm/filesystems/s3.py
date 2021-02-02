@@ -6,13 +6,19 @@ from urllib.parse import urlparse, quote
 import requests
 import json
 from pyarrow.fs import S3FileSystem
+from afm.filesystems.vault import get_credentials_from_vault
 
 def s3filesystem_from_config(s3_config):
     endpoint = s3_config.get('endpoint_url')
-    region = s3_config.get('region')  
+    region = s3_config.get('region')
+
     credentials = s3_config.get('credentials', {})
     access_key = credentials.get('accessKey')
     secret_key = credentials.get('secretKey')
+
+    if 'vault_credentials' in s3_config:
+        access_key, secret_key = get_credentials_from_vault(
+                s3_config.get('vault_credentials'))
 
     secret_provider = credentials.get('secretProvider')
     if secret_provider:
@@ -23,7 +29,6 @@ def s3filesystem_from_config(s3_config):
         region = response.get('region') or region
         access_key = response.get('access_key') or access_key
         secret_key = response.get('secret_key') or secret_key
-
 
     scheme, endpoint_override = _split_endpoint(endpoint)
     anonymous = not access_key
