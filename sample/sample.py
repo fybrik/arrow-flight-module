@@ -6,6 +6,7 @@ from timeit import repeat
 import pyarrow.flight as fl
 import json
 import threading
+from base64 import b64encode
 
 # taken from https://github.com/apache/arrow/blob/master/python/pyarrow/tests/test_flight.py#L450
 class HttpBasicClientAuthHandler(fl.ClientAuthHandler):
@@ -24,9 +25,16 @@ class HttpBasicClientAuthHandler(fl.ClientAuthHandler):
     def get_token(self):
         return self.token
 
+def get_transformation_text():
+    with open('sample/transformation.txt', 'r') as f:
+        operation_string = f.read()
+        operation_string = b64encode(operation_string.encode('utf-8'))
+        return operation_string.decode('utf-8')
+
 request = {
     "asset": "nyc-taxi.parquet", 
-    "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"]
+    "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"],
+    "transformations": [{"name": "Redact", "transformation": get_transformation_text()}]
 }
 
 def read_from_endpoint(endpoint):
