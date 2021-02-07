@@ -16,3 +16,7 @@ class AFMCommand:
     @property
     def columns(self) -> list:
         return self.raw.get('columns', None)
+
+    @property
+    def transformations(self) -> list:
+        return self.raw.get('transformations', None)

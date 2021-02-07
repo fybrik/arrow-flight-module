@@ -111,11 +111,11 @@ class AFMFlightServer(fl.FlightServerBase):
         tickets = []
         if asset.connection_type == 'flight':
             for endpoint in passthrough_flight_info.endpoints:
-                tickets.append(AFMTicket(cmd.asset_name, schema.names, endpoint.ticket.ticket.decode()))
+                tickets.append(AFMTicket(cmd.asset_name, schema.names, cmd.transformations, endpoint.ticket.ticket.decode()))
         else:
             # Build endpoint to this server
             for f in data_files:
-                tickets.append(AFMTicket(cmd.asset_name, schema.names, partition_path=f))
+                tickets.append(AFMTicket(cmd.asset_name, schema.names, cmd.transformations, partition_path=f))
 
         endpoints = self._get_endpoints(tickets, locations)
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
