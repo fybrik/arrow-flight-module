@@ -34,7 +34,7 @@ def get_transformation_text():
 request = {
     "asset": "nyc-taxi.parquet", 
     "columns": ["vendor_id", "pickup_at", "dropoff_at", "payment_type"],
-    "transformations": [{"name": "Redact", "transformation": get_transformation_text()}]
+    "transformations": [{"name": "Redact", "transformation": get_transformation_text(), "description": "description", "columns": ["dropoff_at"], "options": {"redactValue": "ABC"}}]
 }
 
 def read_from_endpoint(endpoint):
