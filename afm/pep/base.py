@@ -5,10 +5,15 @@
 import functools
 import itertools
 import json
+import os.path
+import sys
 
 import pandas as pd
 import pyarrow as pa
 
+from importlib import import_module
+from base64 import b64decode
+from tempfile import NamedTemporaryFile
 
 class Action:
     """Action is a base class for callable actions that transform record batches.
@@ -153,3 +158,22 @@ def transform_schema(actions, schema):
     for action in actions:
         schema = action.schema(schema)
     return schema
+
+def get_module_from_string(transformation_string):
+    transformation_string = b64decode(transformation_string).decode("utf-8")
+    with NamedTemporaryFile(mode='w', suffix=".py") as tempf:
+        tempf.write(transformation_string)
+        tempf.flush()
+        tempbase=os.path.basename(tempf.name)
+        tempdir=os.path.dirname(tempf.name)
+        if tempdir not in sys.path:
+            sys.path.append(tempdir)
+        ret = import_module(os.path.splitext(tempbase)[0])
+        return ret
+
+def add_request_transformations(actions, request_transformations):
+    for transformation in request_transformations:
+        module = get_module_from_string(transformation['transformation'])
+        operation = getattr(module, transformation['name'])
+        action = operation(transformation['description'], transformation['columns'], transformation['options'])
+        actions.append(action)

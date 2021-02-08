@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import pyarrow as pa
+import sys
+
+sys.path.append('afm/pep')
 
 from base import Action
 

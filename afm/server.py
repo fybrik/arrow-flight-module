@@ -16,7 +16,7 @@ from pyarrow.fs import FileSelector
 from .asset import asset_from_config
 from .command import AFMCommand
 from .config import Config
-from .pep import transform, transform_schema, actions
+from .pep import add_request_transformations, transform, transform_schema, actions
 from .ticket import AFMTicket
 from .worker import workers_from_config
 from .auth import AFMAuthHandler
@@ -139,6 +139,8 @@ class AFMFlightServer(fl.FlightServerBase):
         else:
             schema, batches = self._read_asset(asset, ticket_info.columns)
 
+        if ticket_info.transformations:
+            add_request_transformations(asset.actions, ticket_info.transformations)
         schema = transform_schema(asset.actions, schema)
         batches = transform(asset.actions, batches)
         return fl.GeneratorStream(schema, batches)
