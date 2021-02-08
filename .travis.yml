@@ -30,7 +30,6 @@ script:
 deploy:
   provider: script
   script: >-
-    sudo chmod 0777 /etc/docker/certs.d/ghcr.io &&
     docker login -u ${DOCKER_USERNAME} -p ${DOCKER_TOKEN} ${DOCKER_HOSTNAME} &&
     helm registry login -u ${DOCKER_USERNAME} -p ${DOCKER_TOKEN} ${DOCKER_HOSTNAME} &&
     make push chart-push
