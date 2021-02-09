@@ -20,5 +20,6 @@ if __name__ == '__main__':
     loglevel = getattr(logging, args.loglevel.upper(), logging.WARNING)
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=loglevel)
 
+    logging.critical('about to run AFMFlightServer')
     server = AFMFlightServer(args.config, args.port)
     server.serve()
