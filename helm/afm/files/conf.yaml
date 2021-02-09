@@ -11,7 +11,7 @@ data:
         endpoint_url: {{if not (contains "://" .source.connection.s3.endpoint)}}https://{{end}}{{ .source.connection.s3.endpoint }}
         credentials:
           secretProvider: {{ .source.credentialLocation }}
-          vault_credentials: {{ .source.vault}}
+        vault_credentials: {{ .source.vault }}
     {{- end }}
     {{- if .transformations }}
     transformations:

@@ -39,15 +39,15 @@ def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role)
 
 def get_credentials_from_vault(vault_credentials):
     jwt_file_path = vault_credentials.get('jwt_file_path', '/var/run/secrets/kubernetes.io/serviceaccount/token')
-    logging.warning("jwt_file_path = %s", str(jwt_file_path))
+    logging.critical("jwt_file_path = %s", str(jwt_file_path))
     jwt = get_jwt_from_file(jwt_file_path)
     vault_address = vault_credentials.get('address', 'https://localhost:8200')
-    logging.warning("vault_address = %s", str(vault_address))
+    logging.critical("vault_address = %s", str(vault_address))
     secret_path = vault_credentials.get('secretPath', '/v1/secret/data/cred')
-    logging.warning("secret_path = %s", str(secret_path))
+    logging.critical("secret_path = %s", str(secret_path))
     vault_auth = vault_credentials.get('authPath', '/v1/auth/kubernetes/login')
-    logging.warning("vault_auth = %s", str(vault_auth))
+    logging.critical("vault_auth = %s", str(vault_auth))
     role = vault_credentials.get('role', 'demo')
-    logging.warning("role = %s", str(role))
+    logging.critical("role = %s", str(role))
     credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role)['data']
     return credentials['access_key'], credentials['secret_key']
