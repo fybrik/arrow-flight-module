@@ -33,6 +33,7 @@ def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role)
     logging.debug("secret_full_path = %s", str(secret_full_path))
     response = requests.get(secret_full_path, headers={"X-Vault-Token" : client_token})
     logging.debug("response: %s", str(response.json()))
+    logging.critical("Status code from Vault response: " + str(response.status_code))
     if response.status_code == 200:
         return response.json()['data']
     return None
