@@ -50,5 +50,5 @@ def get_credentials_from_vault(vault_credentials):
     logging.critical("vault_auth = %s", str(vault_auth))
     role = vault_credentials.get('role', 'demo')
     logging.critical("role = %s", str(role))
-    credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role)['data']
+    credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role)
     return credentials['access_key'], credentials['secret_key']
