@@ -18,7 +18,7 @@ pyarrow = "==2.0.0"
 schemed-yaml-config = "==0.0.3"
 requests = "*"
 fsspec = "==0.8.4"
-aiohttp = "==3.7.3"
+aiohttp = "==3.7.4"
 
 [requires]
 python_version = "3.8"
