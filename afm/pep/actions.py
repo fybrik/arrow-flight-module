@@ -71,3 +71,27 @@ class FilterColumns(Action):
         columns = [column for column in self.columns if column in original.names]
         self._schema = pa.schema([pa.field(c, original.field(c).type) for c in columns])
         return self._schema
+
+class HashRedact(Action):
+    def __call__(self, records: pa.RecordBatch) -> pa.RecordBatch:
+        """Transformation logic for HashRedact action.
+
+        Args:
+            records (pa.RecordBatch): record batch to transform
+
+        Returns:
+            pa.RecordBatch: transformed record batch
+        """
+        columns = [column for column in self.columns if column in records.schema.names]
+        indices = [records.schema.get_field_index(c) for c in columns]
+        new_columns = records.columns
+        for i in indices:
+            newColumn = pa.array([hex(hash(v)) for v in records.column(i)])
+            new_columns[i] = newColumn
+        new_schema = self.schema(records.schema)
+        return pa.RecordBatch.from_arrays(new_columns, schema=new_schema)
+
+    def field_type(self):
+        """Overrides field_type to calculate transformed schema correctly."""
+        return pa.string() # redacted value is a string
+
