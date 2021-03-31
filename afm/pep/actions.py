@@ -4,6 +4,7 @@
 #
 import pandas as pd
 import pyarrow as pa
+import hashlib
 
 from .base import Action
 
@@ -73,6 +74,13 @@ class FilterColumns(Action):
         return self._schema
 
 class HashRedact(Action):
+    def __init__(self, description, columns, options):
+        super().__init__(description, columns, options)
+        if options == None:
+            self.hash_algo = "md5"
+        else:
+            self.hash_algo = options.get("algo", "md5")
+
     def __call__(self, records: pa.RecordBatch) -> pa.RecordBatch:
         """Transformation logic for HashRedact action.
 
@@ -85,8 +93,14 @@ class HashRedact(Action):
         columns = [column for column in self.columns if column in records.schema.names]
         indices = [records.schema.get_field_index(c) for c in columns]
         new_columns = records.columns
+        algo = self.hash_algo.lower()
+        hashFunc = hashlib.md5
+        if algo == "md5":
+            hashFunc = hashlib.md5
+        elif algo == "sha1":
+            hashFunc = hashlib.sha1
         for i in indices:
-            newColumn = pa.array([hex(hash(v)) for v in records.column(i)])
+            newColumn = pa.array([hashFunc(v.as_py().encode()).hexdigest() for v in records.column(i)])
             new_columns[i] = newColumn
         new_schema = self.schema(records.schema)
         return pa.RecordBatch.from_arrays(new_columns, schema=new_schema)
