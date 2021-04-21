@@ -58,6 +58,8 @@ class AFMFlightServer(fl.FlightServerBase):
         dataset, data_files = self._get_dataset(asset)
         scanner = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20)
         batches = scanner.to_batches()
+        if columns:
+            return self._filter_columns(dataset.schema, columns), batches
         return dataset.schema, batches
 
     def _get_endpoints(self, tickets, locations):
