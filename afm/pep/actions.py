@@ -4,7 +4,7 @@
 #
 import pandas as pd
 import pyarrow as pa
-
+import hashlib
 from .base import Action
 
 class Redact(Action):
@@ -71,3 +71,42 @@ class FilterColumns(Action):
         columns = [column for column in self.columns if column in original.names]
         self._schema = pa.schema([pa.field(c, original.field(c).type) for c in columns])
         return self._schema
+
+
+class HashRedact(Action):
+    def __init__(self, description, columns, options):
+        super().__init__(description, columns, options)
+        if options == None:
+            self.hash_algo = "md5"
+        else:
+            self.hash_algo = options.get("algo", "md5")
+
+    def __call__(self, records: pa.RecordBatch) -> pa.RecordBatch:
+        """Transformation logic for HashRedact action.
+        Args:
+            records (pa.RecordBatch): record batch to transform
+        Returns:
+            pa.RecordBatch: transformed record batch
+        """
+        columns = [column for column in self.columns if column in records.schema.names]
+        indices = [records.schema.get_field_index(c) for c in columns]
+        new_columns = records.columns
+        algo = self.hash_algo.lower()
+        hashFunc = hashlib.md5
+        if algo == "md5":
+            hashFunc = hashlib.md5
+        elif algo == "sha256":
+            hashFunc = hashlib.sha256
+        elif algo == "sha512":
+            hashFunc = hashlib.sha512
+        else:
+            raise ValueError(f"Algorithm {algo} is not supported!")
+        for i in indices:
+            new_columns[i] = pa.array([hashFunc(v.as_py().encode()).hexdigest() for v in records.column(i)])
+        new_schema = self.schema(records.schema)
+        return pa.RecordBatch.from_arrays(new_columns, schema=new_schema)
+
+    def field_type(self):
+        """Overrides field_type to calculate transformed schema correctly."""
+        return pa.string() # redacted value is a string
+        
