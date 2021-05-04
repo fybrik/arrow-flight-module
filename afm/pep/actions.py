@@ -73,6 +73,7 @@ class FilterColumns(Action):
         self._schema = pa.schema([pa.field(c, original.field(c).type) for c in columns])
         return self._schema
 
+
 class HashRedact(Action):
     def __init__(self, description, columns, options):
         super().__init__(description, columns, options)
@@ -97,11 +98,15 @@ class HashRedact(Action):
         hashFunc = hashlib.md5
         if algo == "md5":
             hashFunc = hashlib.md5
-        elif algo == "sha1":
-            hashFunc = hashlib.sha1
+        elif algo == "sha256":
+            hashFunc = hashlib.sha256
+        elif algo == "sha512":
+            hashFunc = hashlib.sha512
+        else:
+            raise ValueError(f"Algorithm {algo} is not supported!")
         for i in indices:
-            newColumn = pa.array([hashFunc(v.as_py().encode()).hexdigest() for v in records.column(i)])
-            new_columns[i] = newColumn
+            new_columns[i] = pa.array([hashFunc(v.as_py().encode()).hexdigest() for v in records.column(i)])
+
         new_schema = self.schema(records.schema)
         return pa.RecordBatch.from_arrays(new_columns, schema=new_schema)
 
