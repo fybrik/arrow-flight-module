@@ -5,6 +5,7 @@
 import pandas as pd
 import pyarrow as pa
 import hashlib
+
 from .base import Action
 
 class Redact(Action):
@@ -83,8 +84,10 @@ class HashRedact(Action):
 
     def __call__(self, records: pa.RecordBatch) -> pa.RecordBatch:
         """Transformation logic for HashRedact action.
+
         Args:
             records (pa.RecordBatch): record batch to transform
+
         Returns:
             pa.RecordBatch: transformed record batch
         """
@@ -103,10 +106,11 @@ class HashRedact(Action):
             raise ValueError(f"Algorithm {algo} is not supported!")
         for i in indices:
             new_columns[i] = pa.array([hashFunc(v.as_py().encode()).hexdigest() for v in records.column(i)])
+
         new_schema = self.schema(records.schema)
         return pa.RecordBatch.from_arrays(new_columns, schema=new_schema)
 
     def field_type(self):
         """Overrides field_type to calculate transformed schema correctly."""
         return pa.string() # redacted value is a string
-        
+

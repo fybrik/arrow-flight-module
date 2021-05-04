@@ -24,8 +24,23 @@ class TestActions(unittest.TestCase):
             self.assertEqual(result.schema.field("weight").type, pa.float64())
 
             self.assertEqual(result.to_pandas()["gender"][0], "XXX")
-
             self.assertEqual(result.to_pandas()["age"][0], "XXX")
+
+    def test_hash_redact_md5(self):
+        df = pd.DataFrame(
+            {'col1': [1, 2, 3], 'col2': ["abcdefghijklmnopqrstuvwxyz", "bcdefghijklmnopqrstuvwxyza", "cdefghijklmnopqrstuvwxyzab"], 'col3': [1.0, 2.0, 3.0]})
+        table = pa.Table.from_pandas(df)
+
+        action = HashRedact("Hash redact", columns=["col2"], options={"algo": "md5"})
+        for record_batch in table.to_batches():
+            result = action(record_batch)
+            self.assertEqual(result.schema.field("col1").type, pa.int64())
+            self.assertEqual(result.schema.field("col2").type, pa.string())
+            self.assertEqual(result.schema.field("col3").type, pa.float64())
+
+            self.assertEqual(result.to_pandas()["col2"][0], "c3fcd3d76192e4007dfb496cca67e13b")
+            self.assertEqual(result.to_pandas()["col2"][1], "07694ef19cf359bfd74556dc0cc7956d")
+            self.assertEqual(result.to_pandas()["col2"][2], "8dda2bba265b7478676bf9526e79c91c")
 
     def test_hash_redact_md5(self):
         df = pd.DataFrame(
