@@ -51,15 +51,15 @@ class AFMFlightServer(fl.FlightServerBase):
         return dataset.schema, data_files
 
     def _filter_columns(self, schema, columns):
-        return pa.schema([pa.field(c, schema.field(c).type)
-			for c in columns])
+        fields = [schema.field(c) for c in columns]
+        return pa.schema([pa.field(f.name, f.type, f.nullable, f.metadata) for f in fields])
 
     def _read_asset(self, asset, columns=None):
         dataset, data_files = self._get_dataset(asset)
         scanner = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20)
         batches = scanner.to_batches()
         if columns:
-           return self._filter_columns(dataset.schema, columns), batches
+            return self._filter_columns(dataset.schema, columns), batches
         return dataset.schema, batches
 
     def _get_endpoints(self, tickets, locations):
