@@ -35,4 +35,4 @@ deploy:
     helm registry login -u ${DOCKER_USERNAME} -p ${DOCKER_TOKEN} ${DOCKER_HOSTNAME} &&
     make push chart-push
   on:
-    branch: master
+    branch: tagRelease
