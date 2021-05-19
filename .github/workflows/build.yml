@@ -33,9 +33,9 @@ jobs:
         
     - name: Build docker image 
       run: make build
-    #- name: Docker login
-     # if: ${{ github.event_name != 'pull_request' }}
-      #run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login -u "${{ github.actor }}" --password-stdin "${{ env.DOCKER_HOSTNAME }}"
+    - name: Docker login
+      if: ${{ github.event_name != 'pull_request' }}
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login -u "${{ github.actor }}" --password-stdin "${{ env.DOCKER_HOSTNAME }}"
     - name: Docker push
       if: ${{ (github.event_name != 'pull_request') && !contains(github.ref, 'tags') }}
       run: make push
@@ -43,9 +43,9 @@ jobs:
       name: Infer version
       run: echo ::set-output name=version::${GITHUB_REF#refs/*/}
     - run: docker images
-    #- name: Helm login
-     # if: ${{ github.event_name != 'pull_request' }}
-      #run: export HELM_EXPERIMENTAL_OCI=1 && echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login -u "${{ github.actor }}" --password-stdin "${{ env.DOCKER_HOSTNAME }}"
+    - name: Helm login
+      if: ${{ github.event_name != 'pull_request' }}
+      run: export HELM_EXPERIMENTAL_OCI=1 && echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login -u "${{ github.actor }}" --password-stdin "${{ env.DOCKER_HOSTNAME }}"
     - name: Helm chart push
       if: ${{ (github.event_name != 'pull_request') && !contains(github.ref, 'tags') }}
       run: make chart-push
