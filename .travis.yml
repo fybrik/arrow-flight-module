@@ -16,7 +16,7 @@ env:
     - HELM_EXPERIMENTAL_OCI=1
     - REPOSITORY=${DOCKER_HOSTNAME}/${DOCKER_NAMESPACE}/arrow-flight-module
     - HELM_REPOSITORY=${REPOSITORY}-chart
-    - TAG=latest
+    - TAG=0.0.0
     
 install:
   - pip install pipenv
