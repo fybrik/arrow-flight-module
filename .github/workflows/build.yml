@@ -1,0 +1,51 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - master
+
+env:
+  DOCKER_HOSTNAME: ghcr.io
+
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+        pip install pipenv
+        
+    - name: Build docker image 
+      run: export REPOSITORY=ghcr.io/the-mesh-for-data/arrow-flight-module && make build
+    - name: Docker login
+      if: ${{ github.event_name != 'pull_request' }}
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "the-mesh-for-data" --password-stdin "${{ env.DOCKER_HOSTNAME }}"
+    - name: Docker push
+      if: ${{ (github.event_name != 'pull_request') && !contains(github.ref, 'tags') }}
+      run: export REPOSITORY=ghcr.io/the-mesh-for-data/arrow-flight-module && make push
+    - id: version
+      name: Infer version
+      run: echo ::set-output name=version::${GITHUB_REF#refs/*/}
+    - run: docker images
+    - name: Helm login
+      if: ${{ github.event_name != 'pull_request' }}
+      run: export HELM_EXPERIMENTAL_OCI=1 && echo "${{ secrets.DOCKER_PASSWORD }}" | helm registry login -u "${{ github.actor }}" --password-stdin "${{ env.DOCKER_HOSTNAME }}"
+    - name: Helm chart push
+      if: ${{ (github.event_name != 'pull_request') && !contains(github.ref, 'tags') }}
+      run: export HELM_REPOSITORY=ghcr.io/the-mesh-for-data/arrow-flight-module-chart && make chart-push

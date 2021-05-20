@@ -1,5 +1,5 @@
 REPOSITORY ?= afm/afm
-TAG ?= latest
+TAG ?= 0.0.0
 
 IMG = ${REPOSITORY}:${TAG}
 CHART_IMG = ${HELM_REPOSITORY}:${TAG}
