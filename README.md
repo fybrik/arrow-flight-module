@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.com/IBM/the-mesh-for-data-flight-module.svg?branch=master)](https://travis-ci.com/IBM/the-mesh-for-data-flight-module)
+[![GitHub Actions Build](https://github.com/mesh-for-data/the-mesh-for-data-flight-module/actions/workflows/build.yml/badge.svg)](https://github.com/mesh-for-data/the-mesh-for-data-flight-module/actions/workflows/build.yml)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # arrow-flight-module
 
