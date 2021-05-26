@@ -9,7 +9,7 @@ spec:
   chart:
     name: ghcr.io/mesh-for-data/arrow-flight-module-chart:0.0.0
     values:
-      image.tag: latest
+      image.tag: 0.0.0
   flows:
     - read
   capabilities:
