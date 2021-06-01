@@ -4,7 +4,7 @@ metadata:
   name: arrow-flight-module
   labels:
     name: arrow-flight-module
-    version: 0.0.0  # semantic version
+    version: latest  # semantic version
 spec:
   chart:
     name: ghcr.io/mesh-for-data/arrow-flight-module-chart:latest
