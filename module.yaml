@@ -7,9 +7,9 @@ metadata:
     version: 0.0.0  # semantic version
 spec:
   chart:
-    name: ghcr.io/mesh-for-data/arrow-flight-module-chart:0.0.0
+    name: ghcr.io/mesh-for-data/arrow-flight-module-chart:latest
     values:
-      image.tag: 0.0.0
+      image.tag: latest
   flows:
     - read
   capabilities:
