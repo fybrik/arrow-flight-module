@@ -14,6 +14,9 @@ spec:
     - read
   capabilities:
     api:
+      endpoint:
+        port: 80
+        scheme: grpc
       protocol: m4d-arrow-flight
       dataformat: arrow
     supportedInterfaces:
