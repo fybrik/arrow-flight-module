@@ -15,7 +15,6 @@ spec:
   capabilities:
     api:
       endpoint:
-        hostname: "s3.eu-gb.cloud-object-storage.appdomain.cloud"
         port: 80
         scheme: grpc
       protocol: m4d-arrow-flight
