@@ -11,6 +11,25 @@ The arrow-flight-module (AFM) for [The Mesh for Data](https://github.com/IBM/the
 AFM is a flight server Flight server that enables applications to consume tabular data from data sources. More importantly, the AFM is also a Policy Enforcement Point (PEP) capable of performing enforcement actions dictated by a Policy Decision Point.
 Such enforcement actions include blocking unauthorized requests, validating and transforming data payloads. 
 
+## Register as a Mesh for Data module
+
+To register AFM as a Mesh for Data module apply `module.yaml` to the m4d-system namespace of your cluster. 
+
+To install the latest release run:
+
+```bash
+kubectl apply -f https://github.com/mesh-for-data/arrow-flight-module/releases/latest/download/module.yaml -n m4d-system
+```
+
+### Version compatbility matrix
+
+| Mesh for Data    | AFM     | Command
+| ---              | ---     | ---
+| 0.1.x            | 0.1.x   | `https://github.com/mesh-for-data/arrow-flight-module/releases/download/v0.1.0/module.yaml`
+| 0.2.x            | 0.2.x   | `https://github.com/mesh-for-data/arrow-flight-module/releases/download/v0.2.0/module.yaml`
+| master           | master  | `https://raw.githubusercontent.com/mesh-for-data/arrow-flight-module/master/module.yaml`
+
+
 ## Build and deploy to Kubernetes
 
 These instructions are for building an image of AFM and 
