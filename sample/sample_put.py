@@ -28,7 +28,6 @@ request = {
 }
 
 def main(port, username, password):
-    global client, info
     client = fl.connect("grpc://localhost:{}".format(port))
     if username or password:
         client.authenticate(HttpBasicClientAuthHandler(username, password))
@@ -37,7 +36,7 @@ def main(port, username, password):
     data = pa.Table.from_arrays([pa.array(range(0, 10 * 1024))], names=['a'])
     writer, _ = client.do_put(fl.FlightDescriptor.for_command(json.dumps(request)),
                               data.schema)
-    writer.write_table(data, 10 * 1024 * 1024)
+    writer.write_table(data, 1024)
     writer.close()
 
     # now that the dataset is in place, let's try to read it
