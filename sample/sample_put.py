@@ -27,7 +27,7 @@ request = {
     "asset": "new-dataset", 
 }
 
-def main(port, num_repeat, username, password):
+def main(port, username, password):
     global client, info
     client = fl.connect("grpc://localhost:{}".format(port))
     if username or password:
@@ -54,11 +54,9 @@ if __name__ == "__main__":
     parser.add_argument(
         '--port', type=int, default=8080, help='Listening port')
     parser.add_argument(
-        '--repeat', type=int, default=3, help='Number of times we measure the time to go over dataset')
-    parser.add_argument(
         '--username', type=str, default=None, help='Authentication username')
     parser.add_argument(
         '--password', type=str, default=None, help='Authentication password')
     args = parser.parse_args()
 
-    main(args.port, args.repeat, args.username, args.password)
+    main(args.port, args.username, args.password)
