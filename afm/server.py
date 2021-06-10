@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import json
 import logging
 import os
 
@@ -53,6 +54,13 @@ class AFMFlightServer(fl.FlightServerBase):
     def _filter_columns(self, schema, columns):
         fields = [schema.field(c) for c in columns]
         return pa.schema([pa.field(f.name, f.type, f.nullable, f.metadata) for f in fields])
+
+    def _write_asset(self, asset, reader):
+        # could not find a way to write the dataset one chunk at a time
+        t = reader.read_all().combine_chunks()
+        # currently, write_dataset supports the parquet format, but not csv
+        ds.write_dataset(t, base_dir=asset.path, format=asset.format,
+                         filesystem=asset.filesystem)
 
     def _read_asset(self, asset, columns=None):
         dataset, data_files = self._get_dataset(asset)
@@ -144,7 +152,11 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.GeneratorStream(schema, batches)
 
     def do_put(self, context, descriptor, reader, writer):
-        raise NotImplementedError("do_put")
+        logging.critical('do_put: descriptor={}'.format(descriptor))
+        asset_info = json.loads(descriptor.command)
+        with Config(self.config_path) as config:
+            asset = asset_from_config(config, asset_info['asset'])
+            self._write_asset(asset, reader)
 
     def get_schema(self, context, descriptor):
         info = self.get_flight_info(context, descriptor)
