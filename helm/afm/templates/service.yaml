@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "arrow-flight-module.fullname" . }}
+  name: {{ .Release.Name }}
   labels:
     app.kubernetes.io/name: {{ include "arrow-flight-module.name" . }}
     helm.sh/chart: {{ include "arrow-flight-module.chart" . }}
