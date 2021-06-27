@@ -20,6 +20,8 @@ def vault_jwt_auth(jwt, vault_address, vault_path, role):
     response = requests.post(full_auth_path, json=json)
     if response.status_code == 200:
         return response.json()
+    logging.critical("Got error code %d from Vault authentication", response.status_code)
+    logging.critical("Error response: %s", str(response.json()))
     return None
 
 def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role):
