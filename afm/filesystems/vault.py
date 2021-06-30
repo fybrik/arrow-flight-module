@@ -28,16 +28,26 @@ def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role)
     """Get a raw secret from vault by providing a valid jwt token"""
     vault_auth_response = vault_jwt_auth(jwt, vault_address, vault_path, role)
     if vault_auth_response is None:
+        logging.critical("Empty vault authorization response")
+        return None
+    if not "auth" in vault_auth_response or not "client_token" in vault_auth_response["auth"]:
+        logging.critical("Malformed vault authorization response")
         return None
     client_token = vault_auth_response["auth"]["client_token"]
     logging.debug("client_token: %s", str(client_token))
     secret_full_path = vault_address + secret_path
     logging.debug("secret_full_path = %s", str(secret_full_path))
     response = requests.get(secret_full_path, headers={"X-Vault-Token" : client_token})
-    logging.debug("response: %s", str(response.json()))
     logging.critical("Status code from Vault response: " + str(response.status_code))
     if response.status_code == 200:
-        return response.json()['data']
+        response_json = response.json()
+        if 'data' in response_json:
+            return response_json['data']
+        else:
+            logging.critical("Malformed secret response. Expected the 'data' field in JSON")
+    else:
+        logging.critical("Got error code %d requesting Vault secret", response.status_code)
+        logging.critical("Error response: %s", str(response.json()))
     return None
 
 def get_credentials_from_vault(vault_credentials):
@@ -53,4 +63,7 @@ def get_credentials_from_vault(vault_credentials):
     role = vault_credentials.get('role', 'demo')
     logging.critical("role = %s", str(role))
     credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role)
-    return credentials['access_key'], credentials['secret_key']
+    if 'access_key' in credentials and 'secret_key' in credentials:
+        return credentials['access_key'], credentials['secret_key']
+    logging.critical("Expected both 'access_key' and 'secret_key' fields in vault secret")
+    return None, None
