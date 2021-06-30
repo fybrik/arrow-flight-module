@@ -7,7 +7,7 @@ import pyarrow.flight as fl
 import pandas as pd
 
 # Create a Flight client
-client = fl.connect("grpc://{{ include "arrow-flight-module.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:80")
+client = fl.connect("grpc://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:80")
 
 # Prepare the request
 request = {
