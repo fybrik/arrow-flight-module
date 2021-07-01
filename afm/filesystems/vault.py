@@ -63,6 +63,8 @@ def get_credentials_from_vault(vault_credentials):
     role = vault_credentials.get('role', 'demo')
     logging.critical("role = %s", str(role))
     credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role)
+    if not credentials:
+        return None, None
     if 'access_key' in credentials and 'secret_key' in credentials:
         if credentials['access_key'] and credentials['secret_key']:
             return credentials['access_key'], credentials['secret_key']
