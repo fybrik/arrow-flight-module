@@ -69,6 +69,9 @@ def get_credentials_from_vault(vault_credentials):
         if credentials['access_key'] and credentials['secret_key']:
             return credentials['access_key'], credentials['secret_key']
         else:
-            logging.credentials("Both 'access_key' and 'secret_key' must be non-empty")
+            if not credentials['access_key']:
+                logging.credentials("'access_key' must be non-empty")
+            if not credentials['secret_key']:
+                logging.credentials("'secret_key' must be non-empty")
     logging.critical("Expected both 'access_key' and 'secret_key' fields in vault secret")
     return None, None
