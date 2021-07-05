@@ -55,8 +55,9 @@ class AFMFlightServer(fl.FlightServerBase):
         fields = [schema.field(c) for c in columns]
         return pa.schema([pa.field(f.name, f.type, f.nullable, f.metadata) for f in fields])
 
+    # write arrow dataset to filesystem
     def _write_asset(self, asset, reader):
-        # could not find a way to write the dataset one chunk at a time
+        # in this implementation we currently begin by reading the entire dataset
         t = reader.read_all().combine_chunks()
         # currently, write_dataset supports the parquet format, but not csv
         ds.write_dataset(t, base_dir=asset.path, format=asset.format,
