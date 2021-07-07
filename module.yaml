@@ -28,6 +28,10 @@ spec:
       source:
         protocol: s3
         dataformat: csv
+    - flow: write
+      source:
+        protocol: s3
+        dataformat: parquet
     actions:
       - id: redact-ID
         level: 2  # column
