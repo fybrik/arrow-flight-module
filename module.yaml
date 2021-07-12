@@ -29,7 +29,7 @@ spec:
         protocol: s3
         dataformat: csv
     - flow: write
-      source:
+      sink:
         protocol: s3
         dataformat: parquet
     actions:
