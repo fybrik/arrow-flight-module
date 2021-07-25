@@ -7,7 +7,7 @@ metadata:
     version: latest  # semantic version
 spec:
   chart:
-    name: ghcr.io/fybrik.io/arrow-flight-module-chart:latest
+    name: ghcr.io/fybrik/arrow-flight-module-chart:latest
     values:
       image.tag: latest
   flows:

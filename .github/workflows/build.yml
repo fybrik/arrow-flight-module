@@ -32,13 +32,13 @@ jobs:
         pip install pipenv
         
     - name: Build docker image 
-      run: export REPOSITORY=ghcr.io/fybrik.io/arrow-flight-module && make build
+      run: export REPOSITORY=ghcr.io/fybrik/arrow-flight-module && make build
     - name: Docker login
       if: ${{ github.event_name != 'pull_request' }}
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login -u "fybrik.io" --password-stdin "${{ env.DOCKER_HOSTNAME }}"
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login -u "fybrik" --password-stdin "${{ env.DOCKER_HOSTNAME }}"
     - name: Docker push
       if: ${{ (github.event_name != 'pull_request') && !contains(github.ref, 'tags') }}
-      run: export REPOSITORY=ghcr.io/fybrik.io/arrow-flight-module && make push
+      run: export REPOSITORY=ghcr.io/fybrik/arrow-flight-module && make push
     - id: version
       name: Infer version
       run: echo ::set-output name=version::${GITHUB_REF#refs/*/}
@@ -48,4 +48,4 @@ jobs:
       run: export HELM_EXPERIMENTAL_OCI=1 && echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login -u "${{ github.actor }}" --password-stdin "${{ env.DOCKER_HOSTNAME }}"
     - name: Helm chart push
       if: ${{ (github.event_name != 'pull_request') && !contains(github.ref, 'tags') }}
-      run: export HELM_REPOSITORY=ghcr.io/fybrik.io/arrow-flight-module-chart && make chart-push
+      run: export HELM_REPOSITORY=ghcr.io/fybrik/arrow-flight-module-chart && make chart-push
