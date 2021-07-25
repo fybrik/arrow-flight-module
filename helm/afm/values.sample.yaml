@@ -9,7 +9,7 @@ read:
     connection:
       name: s3
       s3:
-        bucket: m4d-test-bucket
+        bucket: fybrik-test-bucket
         endpoint: s3.eu-gb.cloud-object-storage.appdomain.cloud
         object_key: test1.parquet
       type: 2
@@ -29,7 +29,7 @@ read:
     connection:
       name: s3
       s3:
-        bucket: m4d-test-bucket
+        bucket: fybrik-test-bucket
         endpoint: s3.eu-gb.cloud-object-storage.appdomain.cloud
         object_key: test2.parquet
       type: 2
