@@ -1,9 +1,9 @@
-[![GitHub Actions Build](https://github.com/mesh-for-data/the-mesh-for-data-flight-module/actions/workflows/build.yml/badge.svg)](https://github.com/mesh-for-data/the-mesh-for-data-flight-module/actions/workflows/build.yml)
+[![GitHub Actions Build](https://github.com/fybrik/arrow-flight-module/actions/workflows/build.yml/badge.svg)](https://github.com/fybrik/arrow-flight-module/actions/workflows/build.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # arrow-flight-module
 
-The arrow-flight-module (AFM) for [The Mesh for Data](https://github.com/IBM/the-mesh-for-data) brings enforcement of data governance policies to the world of [Apache Arrow](https://arrow.apache.org/)
+The arrow-flight-module (AFM) for [Fybrik](https://github.com/fybrik/fybrik) brings enforcement of data governance policies to the world of [Apache Arrow](https://arrow.apache.org/)
 [Flight](https://arrow.apache.org/docs/format/Flight.html).
 
 ## What is it? 
@@ -11,23 +11,23 @@ The arrow-flight-module (AFM) for [The Mesh for Data](https://github.com/IBM/the
 AFM is a flight server Flight server that enables applications to consume tabular data from data sources. More importantly, the AFM is also a Policy Enforcement Point (PEP) capable of performing enforcement actions dictated by a Policy Decision Point.
 Such enforcement actions include blocking unauthorized requests, validating and transforming data payloads. 
 
-## Register as a Mesh for Data module
+## Register as a Fybrik module
 
-To register AFM as a Mesh for Data module apply `module.yaml` to the m4d-system namespace of your cluster. 
+To register AFM as a Fybrik module apply `module.yaml` to the fybrik-system namespace of your cluster.
 
 To install the latest release run:
 
 ```bash
-kubectl apply -f https://github.com/mesh-for-data/arrow-flight-module/releases/latest/download/module.yaml -n m4d-system
+kubectl apply -f https://github.com/fybrik/arrow-flight-module/releases/latest/download/module.yaml -n fybrik-system
 ```
 
 ### Version compatbility matrix
 
-| Mesh for Data    | AFM     | Command
+| Fybrik           | AFM     | Command
 | ---              | ---     | ---
-| 0.1.x            | 0.1.x   | `https://github.com/mesh-for-data/arrow-flight-module/releases/download/v0.1.0/module.yaml`
-| 0.2.x            | 0.2.x   | `https://github.com/mesh-for-data/arrow-flight-module/releases/download/v0.2.0/module.yaml`
-| master           | master  | `https://raw.githubusercontent.com/mesh-for-data/arrow-flight-module/master/module.yaml`
+| 0.1.x            | 0.1.x   | `https://github.com/fybrik/arrow-flight-module/releases/download/v0.1.0/module.yaml`
+| 0.2.x            | 0.2.x   | `https://github.com/fybrik/arrow-flight-module/releases/download/v0.2.0/module.yaml`
+| master           | master  | `https://raw.githubusercontent.com/fybrik/arrow-flight-module/master/module.yaml`
 
 
 ## Build and deploy to Kubernetes
@@ -66,7 +66,7 @@ For example, to use `sample/sample.yaml` as configuration run:
 helm upgrade --reuse-values --set-file config_override=sample/sample.yaml afm ./helm/afm
 ```
 
-It is also possible to specify specific configuration values following the modules specification of The Mesh for Data. Generally, you would want The Mesh for Data to do that for you and not deal with it directly.
+It is also possible to specify specific configuration values following the modules specification of Fybrik. Generally, you would want Fybrik to do that for you and not deal with it directly.
 
 ## Usage
 
