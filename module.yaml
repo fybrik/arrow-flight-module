@@ -6,34 +6,46 @@ metadata:
     name: arrow-flight-module
     version: latest  # semantic version
 spec:
+  type: service
   chart:
     name: ghcr.io/fybrik/arrow-flight-module-chart:latest
     values:
       image.tag: latest
-  flows:
-    - read
   capabilities:
-    api:
-      endpoint:
-        port: 80
-        scheme: grpc
-      protocol: fybrik-arrow-flight
-      dataformat: arrow
-    supportedInterfaces:
-    - flow: read
-      source:
-        protocol: s3
-        dataformat: parquet
-    - flow: read
-      source:
-        protocol: s3
-        dataformat: csv
-    - flow: write
-      sink:
-        protocol: s3
-        dataformat: parquet
-    actions:
-      - id: redact-ID
-        level: 2  # column
-      - id: removed-ID
-        level: 2  # column
+    - capability: read
+      scope: workload
+      api:
+        endpoint:
+          port: 80
+          scheme: grpc
+        protocol: fybrik-arrow-flight
+        dataformat: arrow
+      supportedInterfaces:
+        - source:
+            protocol: s3
+            dataformat: parquet
+        - source:
+            protocol: s3
+            dataformat: csv
+      actions:
+        - id: redact-ID
+          level: 2  # column
+        - id: removed-ID
+          level: 2  # column
+    - capability: write
+      scope: workload
+      api:
+        endpoint:
+          port: 80
+          scheme: grpc
+        protocol: fybrik-arrow-flight
+        dataformat: arrow
+      supportedInterfaces:
+        - sink:
+            protocol: s3
+            dataformat: parquet
+      actions:
+        - id: redact-ID
+          level: 2  # column
+        - id: removed-ID
+          level: 2  # column
