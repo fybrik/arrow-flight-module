@@ -9,23 +9,21 @@ data:
       type: s3
       s3:
         endpoint_url: {{if not (contains "://" .source.connection.s3.endpoint)}}https://{{end}}{{ .source.connection.s3.endpoint }}
-        {{- if .source.credentialLocation }}
-        credentials:
-          secretProvider: {{ .source.credentialLocation }}
-        {{- end }}
-        {{- if .source.vault }}
+        {{- range $k, $v := .source.vault }}
+        {{- if eq $k "read" }}
         vault_credentials:
-          {{- if .source.vault.address }}
-          address: {{ .source.vault.address }}
+          {{- if $v.address }}
+          address: {{ $v.address }}
           {{- end }}
-          {{- if .source.vault.authPath }}
-          authPath: {{ .source.vault.authPath }}
+          {{- if $v.authPath }}
+          authPath: {{ $v.authPath }}
           {{- end }}
-          {{- if .source.vault.role }}
-          role: {{ .source.vault.role }}
+          {{- if $v.role }}
+          role: {{ $v.role }}
           {{- end }}
-          {{- if .source.vault.secretPath }}
-          secretPath: {{ .source.vault.secretPath }}
+          {{- if $v.secretPath }}
+          secretPath: {{ $v.secretPath }}
+          {{- end }}
           {{- end }}
         {{- end }}
     {{- end }}
