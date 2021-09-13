@@ -12,7 +12,7 @@ spec:
     values:
       image.tag: latest
   capabilities:
-    - capability: read
+    read:
       scope: workload
       api:
         endpoint:
