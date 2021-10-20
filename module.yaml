@@ -28,9 +28,9 @@ spec:
             protocol: s3
             dataformat: csv
       actions:
-        - id: redact-ID
+        - id: RedactAction
           level: 2  # column
-        - id: removed-ID
+        - id: RemoveAction
           level: 2  # column
     - capability: write
       scope: workload
@@ -45,7 +45,7 @@ spec:
             protocol: s3
             dataformat: parquet
       actions:
-        - id: redact-ID
+        - id: RedactAction
           level: 2  # column
-        - id: removed-ID
+        - id: RemoveAction
           level: 2  # column
