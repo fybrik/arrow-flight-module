@@ -33,10 +33,10 @@ data:
     {{- $removeColumns := list -}}
     {{- range .transformations -}}
       {{- if eq .action.name "RedactAction" -}}
-        {{- $redactColumns = append  $redactColumns .action.RedactAction.columns -}}
+        {{- $redactColumns = .action.RedactAction.columns -}}
       {{- end -}}
       {{- if eq .action.name "RemoveAction" -}}
-        {{- $removeColumns = append  $removeColumns .action.RemoveAction.columns -}}
+        {{- $removeColumns = .action.RemoveAction.columns -}}
       {{- end -}}
     {{- end -}}
     {{- if $redactColumns }}
