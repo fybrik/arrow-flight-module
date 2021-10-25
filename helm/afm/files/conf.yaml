@@ -32,11 +32,11 @@ data:
     {{- $redactColumns := list -}}
     {{- $removeColumns := list -}}
     {{- range .transformations -}}
-      {{- if eq .action.name "RedactAction" -}}
-        {{- $redactColumns = .action.RedactAction.columns -}}
+      {{- if eq .name "RedactAction" -}}
+        {{- $redactColumns = .RedactAction.columns -}}
       {{- end -}}
-      {{- if eq .action.name "RemoveAction" -}}
-        {{- $removeColumns = .action.RemoveAction.columns -}}
+      {{- if eq .name "RemoveAction" -}}
+        {{- $removeColumns = .RemoveAction.columns -}}
       {{- end -}}
     {{- end -}}
     {{- if $redactColumns }}
