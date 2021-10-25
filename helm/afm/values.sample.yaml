@@ -16,14 +16,16 @@ read:
     credentialLocation: htttp://test/test
     format: parquet
   transformations:
-  - id: "RedactAction"
-    level: 2 # column
-    args:
-      column_name: col1
-  - id: "RemoveAction"
-    level: 2 # column
-    args:
-      column_name: col2
+  - name: "RedactAction"
+    RedactAction:
+      columns:
+      - col1
+      - col2
+  - name: "RemoveAction"
+    RemoveAction:
+      columns:
+      - col1
+      - col2
 - assetID: "test2"
   source:
     connection:
@@ -36,7 +38,8 @@ read:
     credentialLocation: htttp://test/test
     format: parquet
   transformations:
-  - id: "RedactAction"
-    level: 2 # column
-    args:
-      column_name: col1
+  - name: "RedactAction"
+    RedactAction:
+      columns:
+      - col1
+      - col2
