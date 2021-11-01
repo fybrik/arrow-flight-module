@@ -1,8 +1,16 @@
-REPOSITORY ?= afm/afm
-TAG ?= latest
+include Makefile.env
 
-IMG = ${REPOSITORY}:${TAG}
-CHART_IMG = ${HELM_REPOSITORY}:${TAG}
+REPOSITORY ?= helm/afm
+DOCKER_TAG ?= latest
+HELM_TAG ?= 0.0.0
+
+DOCKER_NAME ?= arrow-flight-module
+CHART ?= arrow-flight-module-chart
+
+TEMP := /tmp
+HELM_CHART_PATH := oci://${DOCKER_HOSTNAME}/${DOCKER_NAMESPACE}/
+IMG := ${DOCKER_HOSTNAME}/${DOCKER_NAMESPACE}/${DOCKER_NAME}:${DOCKER_TAG}
+IMG_REPOSITORY := ${DOCKER_HOSTNAME}/${DOCKER_NAMESPACE}/${DOCKER_NAME}
 
 export HELM_EXPERIMENTAL_OCI=1
 
@@ -22,8 +30,8 @@ build:
 	docker build -f build/Dockerfile . -t ${IMG}
 	rm requirements.txt
 
-.PHONY: push
-push:
+.PHONY: docker-push
+docker-push:
 	docker push ${IMG}
 
 .PHONY: push-to-kind
@@ -32,14 +40,19 @@ push-to-kind:
 
 .PHONY: chart-push
 chart-push:
-	helm chart save ./helm/afm ${CHART_IMG}
-	helm chart push ${CHART_IMG}
-	helm chart remove ${CHART_IMG}
+	helm package ${REPOSITORY} --destination=${TEMP} --version=${HELM_TAG}
+	helm push ${TEMP}/${CHART}-${HELM_TAG}.tgz ${HELM_CHART_PATH}
+	rm -rf ${TEMP}/${CHART}-${HELM_TAG}.tgz
+
 
 .PHONY: deploy
 deploy:
-	helm install --set image.repository=${HELM_REPOSITORY} --set image.tag=${TAG} afm ./helm/afm
+	helm install --set image.repository=${IMG_REPOSITORY} --set image.tag=${DOCKER_TAG} afm ./helm/afm
 
 .PHONY: clean
 clean:
 	helm uninstall afm || true
+
+
+include hack/make-rules/tools.mk
+
