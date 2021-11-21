@@ -40,6 +40,10 @@ push-to-kind:
 
 .PHONY: chart-push
 chart-push:
+	# example:
+	# helm package fybrik-template -d /tmp/ --version 0.7.0
+	# helm push /tmp/fybrik-template-0.7.0.tgz oci://localhost:5000/fybrik-system/
+
 	helm package ${REPOSITORY} --destination=${TEMP} --version=${HELM_TAG}
 	helm push ${TEMP}/${CHART}-${HELM_TAG}.tgz ${HELM_CHART_PATH}
 	rm -rf ${TEMP}/${CHART}-${HELM_TAG}.tgz
