@@ -4,7 +4,7 @@
 
 # CHART_NAME the chart name as is appear in Chart.yaml
 # HELM_RELEASE the helm release-name of the chart
-# HELM_TAGNAME  the OCI reference tag (and also the chart version). Must be SemVer
+# HELM_TAG  the OCI reference tag (and also the chart version). Must be SemVer
 # CHART_LOCAL_PATH path to the chart directory
 # DOCKER_HOSTNAME the docker registry hostname
 # DOCKER_NAMESPACE docker registry namespace
@@ -18,7 +18,7 @@ TEMP := /tmp
 CHART_LOCAL_PATH ?= helm/afm 
 CHART_NAME ?= arrow-flight-module-chart
 HELM_RELEASE ?= rel1-${DOCKER_NAME}
-HELM_TAGNAME ?= 0.0.0
+HELM_TAG ?= 0.0.0
 
 CHART_REGISTRY_PATH := oci://${DOCKER_HOSTNAME}/${DOCKER_NAMESPACE}
 
@@ -50,35 +50,35 @@ helm-install: $(TOOLBIN)/helm
 # helm push /tmp/fybrik-template-0.7.0.tgz oci://localhost:5000/fybrik-system/
 .PHONY: helm-chart-push
 helm-chart-push: helm-login
-	$(ABSTOOLBIN)/helm package ${CHART_LOCAL_PATH} --version=${HELM_TAGNAME} --destination=${TEMP}
-	$(ABSTOOLBIN)/helm push ${TEMP}/${CHART_NAME}-${HELM_TAGNAME}.tgz ${CHART_REGISTRY_PATH}
-	rm -rf ${TEMP}/${CHART_NAME}-${HELM_TAGNAME}.tgz
+	$(ABSTOOLBIN)/helm package ${CHART_LOCAL_PATH} --version=${HELM_TAG} --destination=${TEMP}
+	$(ABSTOOLBIN)/helm push ${TEMP}/${CHART_NAME}-${HELM_TAG}.tgz ${CHART_REGISTRY_PATH}
+	rm -rf ${TEMP}/${CHART_NAME}-${HELM_TAG}.tgz
 
 .PHONY: helm-chart-pull
 helm-chart-pull: helm-login
-	$(ABSTOOLBIN)/helm pull ${CHART_REGISTRY_PATH}/${CHART_NAME} --version ${HELM_TAGNAME}
+	$(ABSTOOLBIN)/helm pull ${CHART_REGISTRY_PATH}/${CHART_NAME} --version ${HELM_TAG}
 
-.PHONY: helm-chart-list
+.PHONY: helm-list
 helm-chart-list: $(TOOLBIN)/helm 
-	$(ABSTOOLBIN)/helm chart list
+	$(ABSTOOLBIN)/helm list
 
 .PHONY: helm-chart-install
 helm-chart-install: $(TOOLBIN)/helm
-	$(ABSTOOLBIN)/helm install ${HELM_RELEASE} ${CHART_REGISTRY_PATH}/${CHART_NAME} --version ${HELM_TAGNAME} ${HELM_VALUES}
+	$(ABSTOOLBIN)/helm install ${HELM_RELEASE} ${CHART_REGISTRY_PATH}/${CHART_NAME} --version ${HELM_TAG} ${HELM_VALUES}
 	$(ABSTOOLBIN)/helm list
 
 .PHONY: helm-template
 helm-template: $(TOOLBIN)/helm
-	$(ABSTOOLBIN)/helm template ${HELM_RELEASE} ${CHART_REGISTRY_PATH} --version ${HELM_TAGNAME} ${HELM_VALUES}
+	$(ABSTOOLBIN)/helm template ${HELM_RELEASE} ${CHART_REGISTRY_PATH} --version ${HELM_TAG} ${HELM_VALUES}
 
 .PHONY: helm-debug
 helm-debug: $(TOOLBIN)/helm
-	$(ABSTOOLBIN)/helm template ${HELM_RELEASE} ${CHART_REGISTRY_PATH} ${HELM_VALUES} --version ${HELM_TAGNAME} --debug
+	$(ABSTOOLBIN)/helm template ${HELM_RELEASE} ${CHART_REGISTRY_PATH} ${HELM_VALUES} --version ${HELM_TAG} --debug
 
 .PHONY: helm-actions
 helm-actions: $(TOOLBIN)/helm
-	$(ABSTOOLBIN)/helm show values --version ${HELM_TAGNAME}  ${CHART_REGISTRY_PATH} | yq -y -r .actions
+	$(ABSTOOLBIN)/helm show values --version ${HELM_TAG}  ${CHART_REGISTRY_PATH} | yq -y -r .actions
 
 .PHONY: helm-all
-helm-all: helm-verify helm-chart-push helm-chart-pull helm-uninstall helm-chart-install
+helm-all: helm-verify helm-chart-push helm-chart-pull helm-chart-install helm-uninstall
 
