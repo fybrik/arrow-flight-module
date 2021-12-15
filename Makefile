@@ -1,24 +1,14 @@
 include Makefile.env
 
-REPOSITORY ?= helm/afm
 DOCKER_TAG ?= latest
-HELM_TAG ?= 0.0.0
 
 DOCKER_NAME ?= arrow-flight-module
-CHART ?= arrow-flight-module-chart
 
-TEMP := /tmp
-HELM_CHART_PATH := oci://${DOCKER_HOSTNAME}/${DOCKER_NAMESPACE}/
 IMG := ${DOCKER_HOSTNAME}/${DOCKER_NAMESPACE}/${DOCKER_NAME}:${DOCKER_TAG}
-IMG_REPOSITORY := ${DOCKER_HOSTNAME}/${DOCKER_NAMESPACE}/${DOCKER_NAME}
 
 export HELM_EXPERIMENTAL_OCI=1
 
 all: test build
-
-.PHONY: helm-verify
-helm-verify:
-	helm lint helm/afm
 
 .PHONY: test
 test:
@@ -38,25 +28,6 @@ docker-push:
 push-to-kind:
 	kind load docker-image ${IMG}
 
-.PHONY: chart-push
-chart-push:
-	# example:
-	# helm package fybrik-template -d /tmp/ --version 0.7.0
-	# helm push /tmp/fybrik-template-0.7.0.tgz oci://localhost:5000/fybrik-system/
-
-	helm package ${REPOSITORY} --destination=${TEMP} --version=${HELM_TAG}
-	helm push ${TEMP}/${CHART}-${HELM_TAG}.tgz ${HELM_CHART_PATH}
-	rm -rf ${TEMP}/${CHART}-${HELM_TAG}.tgz
-
-
-.PHONY: deploy
-deploy:
-	helm install --set image.repository=${IMG_REPOSITORY} --set image.tag=${DOCKER_TAG} afm ./helm/afm
-
-.PHONY: clean
-clean:
-	helm uninstall afm || true
-
-
+include hack/make-rules/helm.mk
 include hack/make-rules/tools.mk
 
