@@ -2,8 +2,8 @@ name: Push
 
 on:
   push:
-    branches-ignore:
-      - 'token_inspect'
+    branches:
+      - '*'
     tags:
       - '*'
 
@@ -19,11 +19,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    # Versions are created as follows: (In helm 3.7 OCI reference tags must be valid SemVer)
-    # tags starting with v will be released as what comes after `v`. (e.g. refs/tags/v1.0 -> 1.0) 
-    # release branches in e.g. (refs/heads/releases/1.0 -> 1.0-rc i) This applies to both docker images tags and helm chart tags
-    # other branches (e.g. master) will be released with branch name as version for the docker images. For the helm chart OCI reference tag 
-    # 0.0.0-<branch-name> will be used.
+    # Versions are created as follows (In helm 3.7 OCI reference tags must be valid SemVer):
+    # - Tags starting with v will be released as what comes after `v`. (e.g. refs/tags/v1.0 -> 1.0).
+    # - Release branches will be released as the release number (e.g. refs/heads/releases/1.0 -> 1.0-rc).
+    # - Other branches (e.g. master) will be released with branch name as version for the docker images.
+    #   For the helm chart OCI reference tag 0.0.0-<branch-name> will be used.
     - id: version
       name: Infer version
       run: |
