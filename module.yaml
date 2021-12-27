@@ -19,7 +19,6 @@ spec:
           port: 80
           scheme: grpc
         protocol: fybrik-arrow-flight
-        dataformat: arrow
       supportedInterfaces:
         - source:
             protocol: s3
@@ -37,7 +36,6 @@ spec:
           port: 80
           scheme: grpc
         protocol: fybrik-arrow-flight
-        dataformat: arrow
       supportedInterfaces:
         - sink:
             protocol: s3
