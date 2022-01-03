@@ -1,0 +1,31 @@
+name: Pull-request
+
+on:
+  pull_request:
+    branches:
+      - master
+
+env:
+  DOCKER_HOSTNAME: ghcr.io
+  DOCKER_NAMESPACE: fybrik 
+  DOCKER_USERNAME: ${{ github.actor }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+        pip install pipenv
+    - name: Build docker image 
+      run: make build
+

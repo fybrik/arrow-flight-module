@@ -1,0 +1,75 @@
+name: Push
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+
+env:
+  DOCKER_HOSTNAME: ghcr.io
+  DOCKER_NAMESPACE: fybrik 
+  DOCKER_USERNAME: ${{ github.actor }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    # Versions are created as follows (In helm 3.7 OCI reference tags must be valid SemVer):
+    # - Tags starting with v will be released as what comes after `v`. (e.g. refs/tags/v1.0 -> 1.0).
+    # - Release branches will be released as the release number (e.g. refs/heads/releases/1.0 -> 1.0-rc).
+    # - Other branches (e.g. master) will be released with branch name as version for the docker images.
+    #   For the helm chart OCI reference tag 0.0.0-<branch-name> will be used.
+    - id: version
+      name: Infer version
+      run: |
+        version="${GITHUB_REF#refs/tags/v}"
+        echo "HELM_TAG=${version}" >> $GITHUB_ENV
+        if  [[ $version == refs/* ]] ;
+        then
+            branch="${GITHUB_REF#refs/heads/}"
+            version=$branch
+            # helm 3.7 chart tag must be semver
+            echo "HELM_TAG=0.0.0-${version}" >> $GITHUB_ENV
+        fi
+        if [[ $version == releases/* ]] ;
+        then
+           releaseVersion="${GITHUB_REF#refs/heads/releases/}"
+           version="$releaseVersion-rc"
+           echo "HELM_TAG=$releaseVersion-rc" >> $GITHUB_ENV
+        fi
+        echo "DOCKER_TAG=$version" >> $GITHUB_ENV
+    - name: Helm tool installer
+      uses: Azure/setup-helm@v1
+      with:
+        version: v3.7.0
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+        pip install pipenv
+    - name: Build docker image 
+      run: make build
+    - name: Docker push
+      run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin "${{ env.DOCKER_HOSTNAME }}"
+        make docker-push
+    - run: docker images
+    - name: Install yq
+      run: make ./hack/tools/bin/yq
+    - name: Update docker image tag in the chart value.yaml file
+      run: ./hack/tag_value.sh
+    - name: Helm chart push
+      run: |
+        export HELM_EXPERIMENTAL_OCI=1 
+        echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login -u "${{ github.actor }}" --password-stdin "${{ env.DOCKER_HOSTNAME }}" 
+        make helm-chart-push
+
