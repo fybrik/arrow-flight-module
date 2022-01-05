@@ -10,7 +10,7 @@ spec:
   chart:
     name: ghcr.io/fybrik/arrow-flight-module-chart:0.0.0-master
     values:
-      image.tag: latest
+      image.tag: master
   capabilities:
     - capability: read
       scope: workload
