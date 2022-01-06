@@ -1,4 +1,4 @@
-import logging
+from afm.logging import logger
 from pyarrow import flight
 from pyarrow.flight import ServerAuthHandler
 from .auth_handlers.auth_servers import NoopAuthHandler, HttpBasicServerAuthHandler
@@ -7,10 +7,10 @@ class AFMAuthHandler(ServerAuthHandler):
     def __init__(self, auth_config):
         super().__init__()
         if not auth_config:
-            logging.info("no authentication configuration. Using NoopAuthHandler")
+            logger.info("no authentication configuration. Using NoopAuthHandler")
             self.auth_handler = NoopAuthHandler()
         elif 'basic' in auth_config:
-            logging.info("basic authentication configuration. Using HttpBasicServerAuthHandler")
+            logger.info("basic authentication configuration. Using HttpBasicServerAuthHandler")
             self.auth_handler = HttpBasicServerAuthHandler(auth_config['basic'].get('credentials', None))
         else:
             raise NotImplementedError("Unknown authenticaion type")

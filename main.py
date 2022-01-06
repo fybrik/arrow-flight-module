@@ -4,7 +4,7 @@
 #
 import argparse
 from afm.server import AFMFlightServer
-import logging
+from afm.logging import init_logger, logger
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='AFM Flight Server')
@@ -17,9 +17,8 @@ if __name__ == '__main__':
         choices=['info', 'debug', 'warning', 'error', 'critical'])
     args = parser.parse_args()
 
-    loglevel = getattr(logging, args.loglevel.upper(), logging.WARNING)
-    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=loglevel)
+    init_logger(args.loglevel.upper())
 
-    logging.critical('about to run AFMFlightServer')
+    logger.critical('about to run AFMFlightServer')
     server = AFMFlightServer(args.config, args.port)
     server.serve()
