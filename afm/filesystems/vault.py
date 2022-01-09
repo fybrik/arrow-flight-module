@@ -70,8 +70,8 @@ def get_credentials_from_vault(vault_credentials):
             return credentials['access_key'], credentials['secret_key']
         else:
             if not credentials['access_key']:
-                logger.credentials("'access_key' must be non-empty")
+                logger.error("'access_key' must be non-empty")
             if not credentials['secret_key']:
-                logger.credentials("'secret_key' must be non-empty")
+                logger.error("'secret_key' must be non-empty")
     logger.critical("Expected both 'access_key' and 'secret_key' fields in vault secret")
     return None, None

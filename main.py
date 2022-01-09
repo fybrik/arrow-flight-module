@@ -15,10 +15,13 @@ if __name__ == '__main__':
     parser.add_argument(
         '-l', '--loglevel', type=str, default='warning', help='logging level', 
         choices=['info', 'debug', 'warning', 'error', 'critical'])
+    parser.add_argument('-r', '--color',
+        default=False, type=lambda x: (str(x).lower() == 'true'),
+        help='Color logs (True/False)')
     args = parser.parse_args()
 
-    init_logger(args.loglevel.upper())
+    init_logger(args.loglevel.upper(), args.color)
 
-    logger.critical('about to run AFMFlightServer')
+    logger.info('about to run AFMFlightServer')
     server = AFMFlightServer(args.config, args.port)
     server.serve()
