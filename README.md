@@ -30,6 +30,7 @@ kubectl apply -f https://github.com/fybrik/arrow-flight-module/releases/latest/d
 | 0.3.x            | 0.3.x   | `https://github.com/fybrik/arrow-flight-module/releases/download/v0.3.0/module.yaml`
 | 0.4.x            | 0.4.x   | `https://github.com/fybrik/arrow-flight-module/releases/download/v0.4.0/module.yaml`
 | 0.5.x            | 0.5.x   | `https://github.com/fybrik/arrow-flight-module/releases/download/v0.5.0/module.yaml`
+| 0.6.x            | 0.6.x   | `https://github.com/fybrik/arrow-flight-module/releases/download/v0.6.0/module.yaml`
 | master           | master  | `https://raw.githubusercontent.com/fybrik/arrow-flight-module/master/module.yaml`
 
 
