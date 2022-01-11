@@ -4,7 +4,7 @@
 #
 
 import json
-from afm.logging import logger
+from afm.logging import logger, init_logger
 import os
 
 import pyarrow as pa
@@ -23,13 +23,13 @@ from .worker import workers_from_config
 from .auth import AFMAuthHandler
 
 class AFMFlightServer(fl.FlightServerBase):
-    def __init__(self, config_path: str, port: int, *args, **kwargs):
-
+    def __init__(self, config_path: str, port: int, loglevel: str, *args, **kwargs):
         with Config(config_path) as config:
             super(AFMFlightServer, self).__init__(
                 "grpc://0.0.0.0:{}".format(port),
                 auth_handler=AFMAuthHandler(config.auth),
                 *args, **kwargs)
+        init_logger(loglevel, config.app_uuid)
         self.config_path = config_path
 
     def _get_dataset(self, asset):

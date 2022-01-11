@@ -1,4 +1,5 @@
-{{- if .Values.read -}}
+app-uuid: {{ get .Values.labels "app.fybrik.io/app-uuid" | default "app-uuid-missing" }}
+{{ if .Values.read -}}
 data:
 {{- range .Values.read }}
   - format: {{ .source.format }}
