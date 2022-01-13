@@ -153,7 +153,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.GeneratorStream(schema, batches)
 
     def do_put(self, context, descriptor, reader, writer):
-        logger.critical('do_put: descriptor={}'.format(descriptor))
+        logger.error('do_put: descriptor={}'.format(descriptor))
         asset_info = json.loads(descriptor.command)
         with Config(self.config_path) as config:
             asset = asset_from_config(config, asset_info['asset'])

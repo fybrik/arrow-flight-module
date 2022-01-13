@@ -20,48 +20,48 @@ def vault_jwt_auth(jwt, vault_address, vault_path, role):
     response = requests.post(full_auth_path, json=json)
     if response.status_code == 200:
         return response.json()
-    logger.critical("Got error code %d from Vault authentication", response.status_code)
-    logger.critical("Error response: %s", str(response.json()))
+    logger.error("Got error code %d from Vault authentication", response.status_code)
+    logger.error("Error response: %s", str(response.json()))
     return None
 
 def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role):
     """Get a raw secret from vault by providing a valid jwt token"""
     vault_auth_response = vault_jwt_auth(jwt, vault_address, vault_path, role)
     if vault_auth_response is None:
-        logger.critical("Empty vault authorization response")
+        logger.error("Empty vault authorization response")
         return None
     if not "auth" in vault_auth_response or not "client_token" in vault_auth_response["auth"]:
-        logger.critical("Malformed vault authorization response")
+        logger.error("Malformed vault authorization response")
         return None
     client_token = vault_auth_response["auth"]["client_token"]
     logger.debug("client_token: %s", str(client_token))
     secret_full_path = vault_address + secret_path
     logger.debug("secret_full_path = %s", str(secret_full_path))
     response = requests.get(secret_full_path, headers={"X-Vault-Token" : client_token})
-    logger.critical("Status code from Vault response: " + str(response.status_code))
+    logger.error("Status code from Vault response: " + str(response.status_code))
     if response.status_code == 200:
         response_json = response.json()
         if 'data' in response_json:
             return response_json['data']
         else:
-            logger.critical("Malformed secret response. Expected the 'data' field in JSON")
+            logger.error("Malformed secret response. Expected the 'data' field in JSON")
     else:
-        logger.critical("Got error code %d requesting Vault secret", response.status_code)
-        logger.critical("Error response: %s", str(response.json()))
+        logger.error("Got error code %d requesting Vault secret", response.status_code)
+        logger.error("Error response: %s", str(response.json()))
     return None
 
 def get_credentials_from_vault(vault_credentials):
     jwt_file_path = vault_credentials.get('jwt_file_path', '/var/run/secrets/kubernetes.io/serviceaccount/token')
-    logger.critical("jwt_file_path = %s", str(jwt_file_path))
+    logger.error("jwt_file_path = %s", str(jwt_file_path))
     jwt = get_jwt_from_file(jwt_file_path)
     vault_address = vault_credentials.get('address', 'https://localhost:8200')
-    logger.critical("vault_address = %s", str(vault_address))
+    logger.error("vault_address = %s", str(vault_address))
     secret_path = vault_credentials.get('secretPath', '/v1/secret/data/cred')
-    logger.critical("secret_path = %s", str(secret_path))
+    logger.error("secret_path = %s", str(secret_path))
     vault_auth = vault_credentials.get('authPath', '/v1/auth/kubernetes/login')
-    logger.critical("vault_auth = %s", str(vault_auth))
+    logger.error("vault_auth = %s", str(vault_auth))
     role = vault_credentials.get('role', 'demo')
-    logger.critical("role = %s", str(role))
+    logger.error("role = %s", str(role))
     credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role)
     if not credentials:
         return None, None
@@ -73,5 +73,5 @@ def get_credentials_from_vault(vault_credentials):
                 logger.error("'access_key' must be non-empty")
             if not credentials['secret_key']:
                 logger.error("'secret_key' must be non-empty")
-    logger.critical("Expected both 'access_key' and 'secret_key' fields in vault secret")
+    logger.error("Expected both 'access_key' and 'secret_key' fields in vault secret")
     return None, None
