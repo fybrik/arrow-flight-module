@@ -4,7 +4,7 @@
 #
 
 import json
-import logging
+from afm.logging import logger, init_logger
 import os
 
 import pyarrow as pa
@@ -23,13 +23,13 @@ from .worker import workers_from_config
 from .auth import AFMAuthHandler
 
 class AFMFlightServer(fl.FlightServerBase):
-    def __init__(self, config_path: str, port: int, *args, **kwargs):
-
+    def __init__(self, config_path: str, port: int, loglevel: str, *args, **kwargs):
         with Config(config_path) as config:
             super(AFMFlightServer, self).__init__(
                 "grpc://0.0.0.0:{}".format(port),
                 auth_handler=AFMAuthHandler(config.auth),
                 *args, **kwargs)
+        init_logger(loglevel, config.app_uuid)
         self.config_path = config_path
 
     def _get_dataset(self, asset):
@@ -96,7 +96,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return locations
 
     def get_flight_info(self, context, descriptor):
-        logging.info('get_flight_info: command={}'.format(descriptor.command))
+        logger.info('get_flight_info: command={}'.format(descriptor.command))
         cmd = AFMCommand(descriptor.command)
 
         with Config(self.config_path) as config:
@@ -130,7 +130,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
 
     def do_get(self, context, ticket: fl.Ticket):
-        logging.info('do_get: ticket={}'.format(ticket.ticket))
+        logger.info('do_get: ticket={}'.format(ticket.ticket))
         ticket_info: AFMTicket = AFMTicket.fromJSON(ticket.ticket)
         if ticket_info.columns is None:
             raise ValueError("Columns must be specified in ticket")
@@ -153,7 +153,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.GeneratorStream(schema, batches)
 
     def do_put(self, context, descriptor, reader, writer):
-        logging.critical('do_put: descriptor={}'.format(descriptor))
+        logger.error('do_put: descriptor={}'.format(descriptor))
         asset_info = json.loads(descriptor.command)
         with Config(self.config_path) as config:
             asset = asset_from_config(config, asset_info['asset'])

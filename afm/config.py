@@ -19,6 +19,10 @@ class Config:
             "Requested config for undefined asset: {}".format(asset_name))
 
     @property
+    def app_uuid(self) -> str:
+        return self.values.get('app-uuid', '')
+
+    @property
     def workers(self) -> list:
         return self.values.get('workers', [])
 

@@ -19,6 +19,7 @@ requests = "*"
 fsspec = "==0.8.4"
 aiohttp = "==3.7.4"
 pyyaml = "==5.4.1"
+JSON-log-formatter = "==0.5.0"
 
 [requires]
 python_version = "3.8"
