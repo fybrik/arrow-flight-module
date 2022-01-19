@@ -96,10 +96,10 @@ class AFMFlightServer(fl.FlightServerBase):
         return locations
 
     def get_flight_info(self, context, descriptor):
-        logger.info('', extra={'command': descriptor.command})
         cmd = AFMCommand(descriptor.command)
-        logger.debug('getting flight information',
-            extra={'AssetID': cmd.asset_name})
+        logger.info('getting flight information',
+            extra={'command': descriptor.command,
+                   'AssetID': cmd.asset_name})
 
         with Config(self.config_path) as config:
             asset = asset_from_config(config, cmd.asset_name)
@@ -132,13 +132,13 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
 
     def do_get(self, context, ticket: fl.Ticket):
-        logger.info('', extra={'ticket': ticket.ticket})
         ticket_info: AFMTicket = AFMTicket.fromJSON(ticket.ticket)
         if ticket_info.columns is None:
             raise ValueError("Columns must be specified in ticket")
 
-        logger.debug('retriving dataset',
-            extra={'AssetID': ticket_info.asset_name})
+        logger.info('retriving dataset',
+            extra={'ticket': ticket.ticket,
+                   'AssetID': ticket_info.asset_name})
         with Config(self.config_path) as config:
             asset = asset_from_config(config, ticket_info.asset_name, partition_path=ticket_info.partition_path)
 

@@ -15,7 +15,8 @@ def get_jwt_from_file(file_name):
 def vault_jwt_auth(jwt, vault_address, vault_path, role):
     """Authenticate against Vault using a JWT token (i.e., k8s sa token)"""
     full_auth_path = vault_address + vault_path
-    logger.debug('', extra={'full_auth_path': str(full_auth_path)})
+    logger.debug('authenticating against vault using a JWT token',
+        extra={'full_auth_path': str(full_auth_path)})
     json = {"jwt": jwt, "role": role}
     response = requests.post(full_auth_path, json=json)
     if response.status_code == 200:
@@ -54,14 +55,14 @@ def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role)
 
 def get_credentials_from_vault(vault_credentials):
     jwt_file_path = vault_credentials.get('jwt_file_path', '/var/run/secrets/kubernetes.io/serviceaccount/token')
-    logger.debug('', extra={"jwt_file_path": str(jwt_file_path)})
     jwt = get_jwt_from_file(jwt_file_path)
     vault_address = vault_credentials.get('address', 'https://localhost:8200')
     secret_path = vault_credentials.get('secretPath', '/v1/secret/data/cred')
     vault_auth = vault_credentials.get('authPath', '/v1/auth/kubernetes/login')
     role = vault_credentials.get('role', 'demo')
     logger.debug('getting vault credentials',
-        extra={'vault_address': str(vault_address),
+        extra={'jwt_file_path': str(jwt_file_path),
+               'vault_address': str(vault_address),
                'secret_path': str(secret_path),
                'vault_auth': str(vault_auth),
                'role': str(role)})
