@@ -18,5 +18,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     server = AFMFlightServer(args.config, args.port, args.loglevel.upper())
-    logger.debug('AFMFlightServer started')
+    logger.info('AFMFlightServer started')
     server.serve()
