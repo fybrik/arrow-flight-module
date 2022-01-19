@@ -10,7 +10,6 @@ from pyarrow.fs import S3FileSystem
 from afm.filesystems.vault import get_credentials_from_vault
 
 def s3filesystem_from_config(s3_config):
-    logger.debug("reading s3 configuration")
     endpoint = s3_config.get('endpoint_url')
     region = s3_config.get('region')
 
