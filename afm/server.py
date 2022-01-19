@@ -98,6 +98,8 @@ class AFMFlightServer(fl.FlightServerBase):
     def get_flight_info(self, context, descriptor):
         logger.info('', extra={'command': descriptor.command})
         cmd = AFMCommand(descriptor.command)
+        logger.debug('getting flight information',
+            extra={'AssetID': cmd.asset_name})
 
         with Config(self.config_path) as config:
             asset = asset_from_config(config, cmd.asset_name)
@@ -135,6 +137,8 @@ class AFMFlightServer(fl.FlightServerBase):
         if ticket_info.columns is None:
             raise ValueError("Columns must be specified in ticket")
 
+        logger.debug('retriving dataset',
+            extra={'AssetID': ticket_info.asset_name})
         with Config(self.config_path) as config:
             asset = asset_from_config(config, ticket_info.asset_name, partition_path=ticket_info.partition_path)
 
@@ -153,8 +157,8 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.GeneratorStream(schema, batches)
 
     def do_put(self, context, descriptor, reader, writer):
-        logger.info('', extra={'descriptor': descriptor})
         asset_info = json.loads(descriptor.command)
+        logger.info('writing dataset', extra={'AssetID': asset_info['asset']})
         with Config(self.config_path) as config:
             asset = asset_from_config(config, asset_info['asset'])
             self._write_asset(asset, reader)
