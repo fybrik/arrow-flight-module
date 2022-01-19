@@ -96,7 +96,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return locations
 
     def get_flight_info(self, context, descriptor):
-        logger.info('get_flight_info: command={}'.format(descriptor.command))
+        logger.info('', extra={'command': descriptor.command})
         cmd = AFMCommand(descriptor.command)
 
         with Config(self.config_path) as config:
@@ -130,7 +130,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
 
     def do_get(self, context, ticket: fl.Ticket):
-        logger.info('do_get: ticket={}'.format(ticket.ticket))
+        logger.info('', extra={'ticket': ticket.ticket})
         ticket_info: AFMTicket = AFMTicket.fromJSON(ticket.ticket)
         if ticket_info.columns is None:
             raise ValueError("Columns must be specified in ticket")
@@ -153,7 +153,7 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.GeneratorStream(schema, batches)
 
     def do_put(self, context, descriptor, reader, writer):
-        logger.error('do_put: descriptor={}'.format(descriptor))
+        logger.info('', extra={'descriptor': descriptor})
         asset_info = json.loads(descriptor.command)
         with Config(self.config_path) as config:
             asset = asset_from_config(config, asset_info['asset'])

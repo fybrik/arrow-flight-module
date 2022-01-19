@@ -22,7 +22,7 @@ class FybrikFormatter(json_log_formatter.JSONFormatter):
         extra[Level] = record.levelname
         extra[Caller] = record.filename + ':' + str(record.lineno)
         extra[FuncName] = record.funcName
-        extra[Time] = time.ctime(record.created)
+        extra[Time] = time.strftime('%Y-%m-%dT%X%z', time.localtime(record.created))
         extra[FybrikAppUUID] = app_uuid
         return extra
 

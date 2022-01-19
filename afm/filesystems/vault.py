@@ -15,13 +15,14 @@ def get_jwt_from_file(file_name):
 def vault_jwt_auth(jwt, vault_address, vault_path, role):
     """Authenticate against Vault using a JWT token (i.e., k8s sa token)"""
     full_auth_path = vault_address + vault_path
-    logger.debug("full_auth_path = %s", str(full_auth_path))
+    logger.debug('', extra={'full_auth_path': str(full_auth_path)})
     json = {"jwt": jwt, "role": role}
     response = requests.post(full_auth_path, json=json)
     if response.status_code == 200:
         return response.json()
-    logger.error("Got error code %d from Vault authentication", response.status_code)
-    logger.error("Error response: %s", str(response.json()))
+    logger.error("vault authentication failed",
+        extra={"status_code": str(response.status_code),
+               "error_response": str(response.json)})
     return None
 
 def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role):
@@ -34,11 +35,11 @@ def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role)
         logger.error("Malformed vault authorization response")
         return None
     client_token = vault_auth_response["auth"]["client_token"]
-    logger.debug("client_token: %s", str(client_token))
     secret_full_path = vault_address + secret_path
-    logger.debug("secret_full_path = %s", str(secret_full_path))
     response = requests.get(secret_full_path, headers={"X-Vault-Token" : client_token})
-    logger.error("Status code from Vault response: " + str(response.status_code))
+    logger.debug('vault response',
+        extra={'secret_full_path': str(secret_full_path),
+               'status_code': str(response.status_code)})
     if response.status_code == 200:
         response_json = response.json()
         if 'data' in response_json:
@@ -46,22 +47,24 @@ def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role)
         else:
             logger.error("Malformed secret response. Expected the 'data' field in JSON")
     else:
-        logger.error("Got error code %d requesting Vault secret", response.status_code)
-        logger.error("Error response: %s", str(response.json()))
+        logger.error("vault error",
+            extra={"status_code": str(response.status_code),
+                   "error_response": str(response.json())})
     return None
 
 def get_credentials_from_vault(vault_credentials):
     jwt_file_path = vault_credentials.get('jwt_file_path', '/var/run/secrets/kubernetes.io/serviceaccount/token')
-    logger.error("jwt_file_path = %s", str(jwt_file_path))
+    logger.debug('', extra={"jwt_file_path": str(jwt_file_path)})
     jwt = get_jwt_from_file(jwt_file_path)
     vault_address = vault_credentials.get('address', 'https://localhost:8200')
-    logger.error("vault_address = %s", str(vault_address))
     secret_path = vault_credentials.get('secretPath', '/v1/secret/data/cred')
-    logger.error("secret_path = %s", str(secret_path))
     vault_auth = vault_credentials.get('authPath', '/v1/auth/kubernetes/login')
-    logger.error("vault_auth = %s", str(vault_auth))
     role = vault_credentials.get('role', 'demo')
-    logger.error("role = %s", str(role))
+    logger.debug('getting vault credentials',
+        extra={'vault_address': str(vault_address),
+               'secret_path': str(secret_path),
+               'vault_auth': str(vault_auth),
+               'role': str(role)})
     credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role)
     if not credentials:
         return None, None
