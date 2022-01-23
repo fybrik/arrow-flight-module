@@ -14,7 +14,7 @@ if __name__ == '__main__':
         '-c', '--config', type=str, default='/etc/conf/conf.yaml', help='Path to config file')
     parser.add_argument(
         '-l', '--loglevel', type=str, default='warning', help='logging level', 
-        choices=['info', 'debug', 'warning', 'error', 'critical'])
+        choices=['trace', 'info', 'debug', 'warning', 'error', 'critical'])
     args = parser.parse_args()
 
     server = AFMFlightServer(args.config, args.port, args.loglevel.upper())

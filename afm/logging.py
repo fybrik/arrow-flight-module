@@ -13,6 +13,16 @@ Time          = 'time'
 Caller        = 'caller'
 FuncName      = 'funcName'
 
+TRACE = 5
+
+logging.TRACE = TRACE
+logging.addLevelName(TRACE, "TRACE")
+
+def trace(self, msg, *args, **kwargs):
+    self._log(TRACE, msg, args, **kwargs)
+
+logging.Logger.trace = trace
+
 logger = logging.getLogger('arrow-flight-module')
 app_uuid = ''
 
