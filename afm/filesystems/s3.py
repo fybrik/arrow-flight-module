@@ -20,11 +20,11 @@ def s3filesystem_from_config(s3_config):
     secret_provider = credentials.get('secretProvider')
 
     if 'vault_credentials' in s3_config:
-        logger.debug("reading s3 configuration from vault")
+        logger.trace("reading s3 configuration from vault")
         access_key, secret_key = get_credentials_from_vault(
                 s3_config.get('vault_credentials'))
     elif secret_provider:
-        logger.debug("reading s3 configuration from secret provider")
+        logger.trace("reading s3 configuration from secret provider")
         r = requests.get(secret_provider)
         r.raise_for_status()
         response = r.json()

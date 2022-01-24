@@ -6,12 +6,17 @@ import logging
 import json_log_formatter
 import time
 
+# FybrikFormatter constants
 FybrikAppUUID = 'app.fybrik.io/app-uuid'
 Level         = 'level'
 Message       = 'message'
 Time          = 'time'
 Caller        = 'caller'
 FuncName      = 'funcName'
+
+StatusCode    = 'status_code'
+Error         = 'error'
+AssetId       = 'assetID'
 
 TRACE = 5
 

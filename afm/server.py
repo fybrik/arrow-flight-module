@@ -4,7 +4,7 @@
 #
 
 import json
-from afm.logging import logger, init_logger
+from afm.logging import logger, init_logger, AssetId
 import os
 
 import pyarrow as pa
@@ -99,7 +99,7 @@ class AFMFlightServer(fl.FlightServerBase):
         cmd = AFMCommand(descriptor.command)
         logger.info('getting flight information',
             extra={'command': descriptor.command,
-                   'AssetID': cmd.asset_name})
+                   AssetId: cmd.asset_name})
 
         with Config(self.config_path) as config:
             asset = asset_from_config(config, cmd.asset_name)
@@ -138,7 +138,7 @@ class AFMFlightServer(fl.FlightServerBase):
 
         logger.info('retriving dataset',
             extra={'ticket': ticket.ticket,
-                   'AssetID': ticket_info.asset_name})
+                   AssetId: ticket_info.asset_name})
         with Config(self.config_path) as config:
             asset = asset_from_config(config, ticket_info.asset_name, partition_path=ticket_info.partition_path)
 
@@ -158,7 +158,7 @@ class AFMFlightServer(fl.FlightServerBase):
 
     def do_put(self, context, descriptor, reader, writer):
         asset_info = json.loads(descriptor.command)
-        logger.info('writing dataset', extra={'AssetID': asset_info['asset']})
+        logger.info('writing dataset', extra={AssetId: asset_info['asset']})
         with Config(self.config_path) as config:
             asset = asset_from_config(config, asset_info['asset'])
             self._write_asset(asset, reader)

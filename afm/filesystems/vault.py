@@ -1,7 +1,7 @@
 # Copyright 2020 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from afm.logging import logger
+from afm.logging import logger, StatusCode, Error
 import requests
 
 def get_jwt_from_file(file_name):
@@ -22,8 +22,8 @@ def vault_jwt_auth(jwt, vault_address, vault_path, role):
     if response.status_code == 200:
         return response.json()
     logger.error("vault authentication failed",
-        extra={"status_code": str(response.status_code),
-               "error_response": str(response.json)})
+        extra={StatusCode: str(response.status_code),
+               Error: str(response.json)})
     return None
 
 def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role):
@@ -40,7 +40,7 @@ def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role)
     response = requests.get(secret_full_path, headers={"X-Vault-Token" : client_token})
     logger.debug('vault response',
         extra={'secret_full_path': str(secret_full_path),
-               'status_code': str(response.status_code)})
+               StatusCode: str(response.status_code)})
     if response.status_code == 200:
         response_json = response.json()
         if 'data' in response_json:
@@ -49,8 +49,8 @@ def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role)
             logger.error("Malformed secret response. Expected the 'data' field in JSON")
     else:
         logger.error("vault error",
-            extra={"status_code": str(response.status_code),
-                   "error_response": str(response.json())})
+            extra={StatusCode: str(response.status_code),
+                   Error: str(response.json())})
     return None
 
 def get_credentials_from_vault(vault_credentials):
