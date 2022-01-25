@@ -16,7 +16,7 @@ FuncName      = 'funcName'
 
 StatusCode    = 'status_code'
 Error         = 'error'
-AssetId       = 'assetID'
+DataSetID     = 'DataSetID'
 
 TRACE = 5
 

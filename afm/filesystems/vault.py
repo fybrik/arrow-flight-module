@@ -1,7 +1,7 @@
 # Copyright 2020 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from afm.logging import logger, StatusCode, Error
+from afm.logging import logger, StatusCode, Error, DataSetID
 import requests
 
 def get_jwt_from_file(file_name):
@@ -53,19 +53,20 @@ def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role)
                    Error: str(response.json())})
     return None
 
-def get_credentials_from_vault(vault_credentials):
+def get_credentials_from_vault(vault_credentials, datasetID):
     jwt_file_path = vault_credentials.get('jwt_file_path', '/var/run/secrets/kubernetes.io/serviceaccount/token')
     jwt = get_jwt_from_file(jwt_file_path)
     vault_address = vault_credentials.get('address', 'https://localhost:8200')
     secret_path = vault_credentials.get('secretPath', '/v1/secret/data/cred')
     vault_auth = vault_credentials.get('authPath', '/v1/auth/kubernetes/login')
     role = vault_credentials.get('role', 'demo')
-    logger.debug('getting vault credentials',
+    logger.trace('getting vault credentials',
         extra={'jwt_file_path': str(jwt_file_path),
                'vault_address': str(vault_address),
                'secret_path': str(secret_path),
                'vault_auth': str(vault_auth),
-               'role': str(role)})
+               'role': str(role),
+               DataSetID: datasetID})
     credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role)
     if not credentials:
         return None, None

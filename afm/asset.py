@@ -80,7 +80,7 @@ class FileSystemAsset(Asset):
         connection = asset_config['connection']
         connection_type = connection['type']
         if connection_type == "s3":
-            return s3filesystem_from_config(connection["s3"])
+            return s3filesystem_from_config(connection["s3"], asset_config['name'])
         elif connection_type == "localfs":
             return LocalFileSystem()
         elif connection_type == "httpfs":
