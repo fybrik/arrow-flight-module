@@ -1,7 +1,7 @@
 # Copyright 2020 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from afm.logging import logger, StatusCode, Error, DataSetID
+from afm.logging import logger, Error, DataSetID
 import requests
 
 def get_jwt_from_file(file_name):
@@ -12,45 +12,46 @@ def get_jwt_from_file(file_name):
     with open(file_name) as f:
         return f.read()
 
-def vault_jwt_auth(jwt, vault_address, vault_path, role):
+def vault_jwt_auth(jwt, vault_address, vault_path, role, datasetID):
     """Authenticate against Vault using a JWT token (i.e., k8s sa token)"""
     full_auth_path = vault_address + vault_path
-    logger.debug('authenticating against vault using a JWT token',
-        extra={'full_auth_path': str(full_auth_path)})
+    logger.trace('authenticating against vault using a JWT token',
+        extra={'full_auth_path': str(full_auth_path), DataSetID: datasetID})
     json = {"jwt": jwt, "role": role}
     response = requests.post(full_auth_path, json=json)
     if response.status_code == 200:
         return response.json()
     logger.error("vault authentication failed",
-        extra={StatusCode: str(response.status_code),
-               Error: str(response.json)})
+        extra={Error: str(response.status_code) + ': ' + str(response.json()),
+               DataSetID: datasetID})
     return None
 
-def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role):
+def get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_path, role, datasetID):
     """Get a raw secret from vault by providing a valid jwt token"""
-    vault_auth_response = vault_jwt_auth(jwt, vault_address, vault_path, role)
+    vault_auth_response = vault_jwt_auth(jwt, vault_address, vault_path, role, datasetID)
     if vault_auth_response is None:
-        logger.error("Empty vault authorization response")
+        logger.error("Empty vault authorization response", extra={DataSetID: datasetID})
         return None
     if not "auth" in vault_auth_response or not "client_token" in vault_auth_response["auth"]:
-        logger.error("Malformed vault authorization response")
+        logger.error("Malformed vault authorization response", extra={DataSetID: datasetID})
         return None
     client_token = vault_auth_response["auth"]["client_token"]
     secret_full_path = vault_address + secret_path
     response = requests.get(secret_full_path, headers={"X-Vault-Token" : client_token})
-    logger.debug('vault response',
-        extra={'secret_full_path': str(secret_full_path),
-               StatusCode: str(response.status_code)})
+    logger.debug('Response received from vault when accessing credentials: ' + str(response.status_code),
+        extra={'credentials_path': str(secret_full_path),
+               DataSetID: datasetID})
     if response.status_code == 200:
         response_json = response.json()
         if 'data' in response_json:
             return response_json['data']
         else:
-            logger.error("Malformed secret response. Expected the 'data' field in JSON")
+            logger.error("Malformed secret response. Expected the 'data' field in JSON",
+                         extra={DataSetID: datasetID})
     else:
-        logger.error("vault error",
-            extra={StatusCode: str(response.status_code),
-                   Error: str(response.json())})
+        logger.error("Error reading credentials from vault",
+            extra={Error: str(response.status_code) + ': ' + str(response.json()),
+                   DataSetID: datasetID})
     return None
 
 def get_credentials_from_vault(vault_credentials, datasetID):
@@ -67,7 +68,7 @@ def get_credentials_from_vault(vault_credentials, datasetID):
                'vault_auth': str(vault_auth),
                'role': str(role),
                DataSetID: datasetID})
-    credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role)
+    credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role, datasetID)
     if not credentials:
         return None, None
     if 'access_key' in credentials and 'secret_key' in credentials:
@@ -75,8 +76,9 @@ def get_credentials_from_vault(vault_credentials, datasetID):
             return credentials['access_key'], credentials['secret_key']
         else:
             if not credentials['access_key']:
-                logger.error("'access_key' must be non-empty")
+                logger.error("'access_key' must be non-empty", extra={DataSetID: datasetID})
             if not credentials['secret_key']:
-                logger.error("'secret_key' must be non-empty")
-    logger.error("Expected both 'access_key' and 'secret_key' fields in vault secret")
+                logger.error("'secret_key' must be non-empty", extra={DataSetID: datasetID})
+    logger.error("Expected both 'access_key' and 'secret_key' fields in vault secret",
+                 extra={DataSetID: datasetID})
     return None, None

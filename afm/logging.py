@@ -14,7 +14,6 @@ Time          = 'time'
 Caller        = 'caller'
 FuncName      = 'funcName'
 
-StatusCode    = 'status_code'
 Error         = 'error'
 DataSetID     = 'DataSetID'
 
