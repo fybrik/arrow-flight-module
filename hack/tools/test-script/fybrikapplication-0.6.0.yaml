@@ -1,0 +1,18 @@
+apiVersion: app.fybrik.io/v1alpha1
+kind: FybrikApplication
+metadata:
+  name: my-notebook
+  labels:
+    app: my-notebook
+spec:
+  selector:
+    workloadSelector:
+      matchLabels:
+        app: my-notebook
+  appInfo:
+    intent: Fraud Detection
+  data:
+    - dataSetID: "fybrik-notebook-sample/paysim-csv"
+      requirements:
+        interface: 
+          protocol: fybrik-arrow-flight

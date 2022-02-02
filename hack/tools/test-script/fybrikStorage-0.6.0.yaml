@@ -1,0 +1,10 @@
+apiVersion:   app.fybrik.io/v1alpha1
+kind:         FybrikStorageAccount
+metadata:
+  name: storage-account
+  namespace: fybrik-system
+spec:
+  id: theshire
+  endpoints:
+    theshire: "http://localstack.fybrik-notebook-sample.svc.cluster.local:4566"
+  secretRef:  bucket-creds
