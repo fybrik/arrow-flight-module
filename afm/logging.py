@@ -6,12 +6,26 @@ import logging
 import json_log_formatter
 import time
 
+# FybrikFormatter constants
 FybrikAppUUID = 'app.fybrik.io/app-uuid'
 Level         = 'level'
 Message       = 'message'
 Time          = 'time'
 Caller        = 'caller'
 FuncName      = 'funcName'
+
+Error         = 'error'
+DataSetID     = 'DataSetID'
+
+TRACE = 5
+
+logging.TRACE = TRACE
+logging.addLevelName(TRACE, "TRACE")
+
+def trace(self, msg, *args, **kwargs):
+    self._log(TRACE, msg, args, **kwargs)
+
+logging.Logger.trace = trace
 
 logger = logging.getLogger('arrow-flight-module')
 app_uuid = ''
@@ -22,7 +36,7 @@ class FybrikFormatter(json_log_formatter.JSONFormatter):
         extra[Level] = record.levelname
         extra[Caller] = record.filename + ':' + str(record.lineno)
         extra[FuncName] = record.funcName
-        extra[Time] = time.ctime(record.created)
+        extra[Time] = time.strftime('%Y-%m-%dT%X%z', time.localtime(record.created))
         extra[FybrikAppUUID] = app_uuid
         return extra
 

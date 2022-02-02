@@ -28,7 +28,8 @@ class HttpBasicServerAuthHandler(ServerAuthHandler):
     def authenticate(self, outgoing, incoming):
         buf = incoming.read()
         auth = flight.BasicAuth.deserialize(buf)
-        logger.info('HttpBasicServerAuthHandler: authenticate(). username: {}'.format(auth.username.decode()))
+        logger.info('basic authentication',
+                    extra={'username': auth.username.decode()})
         if auth.username.decode() not in self.creds:
             raise flight.FlightUnauthenticatedError("unknown user")
         if self.creds[auth.username.decode()] != auth.password.decode():
@@ -36,7 +37,6 @@ class HttpBasicServerAuthHandler(ServerAuthHandler):
         outgoing.write(auth.username)
 
     def is_valid(self, token):
-        logger.info('HttpBasicServerAuthHandler: is_valid()')
         if not token:
             raise flight.FlightUnauthenticatedError("token not provided")
         if token.decode() not in self.creds:

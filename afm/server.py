@@ -4,7 +4,7 @@
 #
 
 import json
-from afm.logging import logger, init_logger
+from afm.logging import logger, init_logger, DataSetID
 import os
 
 import pyarrow as pa
@@ -96,8 +96,10 @@ class AFMFlightServer(fl.FlightServerBase):
         return locations
 
     def get_flight_info(self, context, descriptor):
-        logger.info('get_flight_info: command={}'.format(descriptor.command))
         cmd = AFMCommand(descriptor.command)
+        logger.info('getting flight information',
+            extra={'command': descriptor.command,
+                   DataSetID: cmd.asset_name})
 
         with Config(self.config_path) as config:
             asset = asset_from_config(config, cmd.asset_name)
@@ -130,11 +132,13 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.FlightInfo(schema, descriptor, endpoints, -1, -1)
 
     def do_get(self, context, ticket: fl.Ticket):
-        logger.info('do_get: ticket={}'.format(ticket.ticket))
         ticket_info: AFMTicket = AFMTicket.fromJSON(ticket.ticket)
         if ticket_info.columns is None:
             raise ValueError("Columns must be specified in ticket")
 
+        logger.info('retrieving dataset',
+            extra={'ticket': ticket.ticket,
+                   DataSetID: ticket_info.asset_name})
         with Config(self.config_path) as config:
             asset = asset_from_config(config, ticket_info.asset_name, partition_path=ticket_info.partition_path)
 
@@ -153,8 +157,8 @@ class AFMFlightServer(fl.FlightServerBase):
         return fl.GeneratorStream(schema, batches)
 
     def do_put(self, context, descriptor, reader, writer):
-        logger.error('do_put: descriptor={}'.format(descriptor))
         asset_info = json.loads(descriptor.command)
+        logger.info('writing dataset', extra={DataSetID: asset_info['asset']})
         with Config(self.config_path) as config:
             asset = asset_from_config(config, asset_info['asset'])
             self._write_asset(asset, reader)
