@@ -136,7 +136,7 @@ class AFMFlightServer(fl.FlightServerBase):
         if ticket_info.columns is None:
             raise ValueError("Columns must be specified in ticket")
 
-        logger.info('retriving dataset',
+        logger.info('retrieving dataset',
             extra={'ticket': ticket.ticket,
                    DataSetID: ticket_info.asset_name})
         with Config(self.config_path) as config:
