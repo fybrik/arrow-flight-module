@@ -11,8 +11,11 @@ export SECRET_KEY=1234
 kubernetesVersion=$1
 fybrikVersion=$2
 moduleVersion=$3
-module=$4
-certManagerVersion=$5
+certManagerVersion=$4
+
+# Trim the last two charts of the module version
+# to construct the module resource path
+moduleResourceVersion=${moduleVersion%??}".0"
 
 if [ $kubernetesVersion == "kind19" ]
 then
@@ -46,7 +49,7 @@ bin/helm repo update
 
 bin/helm install cert-manager jetstack/cert-manager \
     --namespace cert-manager \
-    --version v1.2.0 \
+    --version v$certManagerVersion \
     --create-namespace \
     --set installCRDs=true \
     --wait --timeout 400s
@@ -122,13 +125,13 @@ stringData:
 EOF
 
 
-bin/kubectl apply -f $WORKING_DIR/Asset-$moduleVersion.yaml -n fybrik-notebook-sample
+bin/kubectl apply -f $WORKING_DIR/Asset-$moduleResourceVersion.yaml -n fybrik-notebook-sample
 sleep 10
 bin/kubectl describe Asset paysim-csv -n fybrik-notebook-sample
 
 
 
-bin/kubectl -n fybrik-system create configmap sample-policy --from-file=$WORKING_DIR/sample-policy-$moduleVersion.rego
+bin/kubectl -n fybrik-system create configmap sample-policy --from-file=$WORKING_DIR/sample-policy-$moduleResourceVersion.rego
 bin/kubectl -n fybrik-system label configmap sample-policy openpolicyagent.org/policy=rego
 
 c=0
@@ -140,7 +143,7 @@ do
 done
 
 
-bin/kubectl apply -f $WORKING_DIR/fybrikapplication-$moduleVersion.yaml
+bin/kubectl apply -f $WORKING_DIR/fybrikapplication-$moduleResourceVersion.yaml
 
 c=0
 while [[ $(bin/kubectl get fybrikapplication my-notebook -o 'jsonpath={.status.ready}') != "true" ]]

@@ -11,9 +11,6 @@ on:
       module-version:
         required: true
         default: '0.6.0'
-      module-type:
-        required: true
-        default: 'stream'
       cert-manager-version:
         required: true
         default: '1.6.2'
