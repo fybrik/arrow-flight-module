@@ -1,0 +1,14 @@
+       amount oldbalanceOrg
+0     9839.64         XXXXX
+1     1864.28         XXXXX
+2      181.00         XXXXX
+3      181.00         XXXXX
+4    11668.14         XXXXX
+..        ...           ...
+95  710544.77         XXXXX
+96  581294.26         XXXXX
+97   11996.58         XXXXX
+98    2875.10         XXXXX
+99    8586.98         XXXXX
+
+[100 rows x 2 columns]

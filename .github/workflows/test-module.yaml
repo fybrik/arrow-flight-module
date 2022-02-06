@@ -1,0 +1,41 @@
+name: Test
+on: 
+  workflow_dispatch:
+    inputs:
+      kind-version:
+        required: true
+        default: 'kind19'
+      fybrik-version:
+        required: true
+        default: '0.6.0'
+      module-version:
+        required: true
+        default: '0.6.0'
+      cert-manager-version:
+        required: true
+        default: '1.6.2'
+
+env:
+  GO_VERSION: 1.17
+  AWS_PAGER: ""
+  AWS_EC2_METADATA_DISABLED: true
+
+jobs:
+  test-module:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ env.GO_VERSION }}
+    - name: Install tools
+      run: make install-tools
+    - name: Install AWS cli
+      uses: unfor19/install-aws-cli-action@v1
+      with:
+        version: 2     # default
+        verbose: false # default
+    - name: run-test
+      run: pushd hack/tools && ./test_module.sh ${{ github.event.inputs.kind-version }} ${{ github.event.inputs.fybrik-version }} ${{ github.event.inputs.module-version }} ${{ github.event.inputs.module-type }} ${{ github.event.inputs.cert-manager-version }} && popd
+
