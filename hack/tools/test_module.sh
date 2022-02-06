@@ -65,7 +65,7 @@ bin/helm install vault fybrik-charts/vault --create-namespace -n fybrik-system \
 bin/helm install fybrik-crd fybrik-charts/fybrik-crd -n fybrik-system --version v$fybrikVersion --wait
 bin/helm install fybrik fybrik-charts/fybrik -n fybrik-system --version v$fybrikVersion --wait
 
-
+sleep 10
 #cd /data/fybrik-release-0.5.0/fybrik
 #helm install fybrik-crd charts/fybrik-crd -n fybrik-system --wait
 #helm install fybrik charts/fybrik --set global.tag=0.5.3 --set global.imagePullPolicy=Always -n fybrik-system --wait
