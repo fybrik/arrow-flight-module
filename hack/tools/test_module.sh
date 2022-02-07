@@ -65,32 +65,15 @@ bin/helm install vault fybrik-charts/vault --create-namespace -n fybrik-system \
 bin/helm install fybrik-crd fybrik-charts/fybrik-crd -n fybrik-system --version v$fybrikVersion --wait
 bin/helm install fybrik fybrik-charts/fybrik -n fybrik-system --version v$fybrikVersion --wait
 
-
-#cd /data/fybrik-release-0.5.0/fybrik
-#helm install fybrik-crd charts/fybrik-crd -n fybrik-system --wait
-#helm install fybrik charts/fybrik --set global.tag=0.5.3 --set global.imagePullPolicy=Always -n fybrik-system --wait
-
-
+# Related to https://github.com/cert-manager/cert-manager/issues/2908
+# Fybrik webhook not really ready after "helm install --wait"
+# temporary workaround is to add sleep command after fybrik installation
+sleep 10
 
 # apply modules
 
 
 bin/kubectl apply -f https://github.com/fybrik/arrow-flight-module/releases/download/v$moduleVersion/module.yaml -n fybrik-system
-
-
-
-
-# #datashim
-# bin/kubectl apply -f https://raw.githubusercontent.com/datashim-io/datashim/master/release-tools/manifests/dlf.yaml
-# bin/kubectl wait --for=condition=ready pods -l app.kubernetes.io/name=dlf -n dlf --timeout=600s
-# # cd $PATH_TO_LOCAL_FYBRIK/third_party/datashim/
-# # make deploy
-
-
-
-# source ${EXPORT_FILE}
-
-sleep 10
 
 # Notebook sample
 
