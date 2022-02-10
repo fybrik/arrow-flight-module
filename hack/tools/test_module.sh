@@ -94,7 +94,6 @@ bin/kubectl wait --for=condition=ready --all pod -n fybrik-notebook-sample --tim
 
 bin/kubectl port-forward svc/localstack 4566:4566 &
 
-sleep 10
 
 export ENDPOINT="http://127.0.0.1:4566"
 export BUCKET="demo"
@@ -116,7 +115,6 @@ EOF
 
 
 bin/kubectl apply -f $WORKING_DIR/Asset-$moduleResourceVersion.yaml -n fybrik-notebook-sample
-sleep 10
 bin/kubectl describe Asset paysim-csv -n fybrik-notebook-sample
 
 
@@ -142,8 +140,6 @@ do
     ((c++)) && ((c==30)) && break
     sleep 6
 done
-
-sleep 10
 
 
 bin/kubectl get pods -n fybrik-blueprints
