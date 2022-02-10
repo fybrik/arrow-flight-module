@@ -127,7 +127,7 @@ while [[ $(bin/kubectl get cm sample-policy -n fybrik-system -o 'jsonpath={.meta
 do
     echo "waiting"
     ((c++)) && ((c==25)) && break
-    sleep 5
+    sleep 1
 done
 
 
@@ -138,7 +138,7 @@ while [[ $(bin/kubectl get fybrikapplication my-notebook -o 'jsonpath={.status.r
 do
     echo "waiting"
     ((c++)) && ((c==30)) && break
-    sleep 6
+    sleep 1
 done
 
 
