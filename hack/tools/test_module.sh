@@ -157,10 +157,20 @@ bin/kubectl exec -i ${POD_NAME} -n fybrik-blueprints -- python /tmp/test.py > re
 bin/kubectl logs ${POD_NAME} -n fybrik-blueprints
 
 DIFF=$(diff -b $WORKING_DIR/expected.txt res.out)
+RES=0
 if [ "${DIFF}" == "" ]
 then
     echo "test succeeded"
 else
-    echo "test failed"
-    exit 1
+    RES=1
+fi
+
+pkill kubectl
+bin/kubectl delete namespace fybrik-notebook-sample
+bin/kubectl -n fybrik-system delete configmap sample-policy
+
+if [ ${RES} == 1 ]
+then
+  echo "test failed"
+  exit 1
 fi
