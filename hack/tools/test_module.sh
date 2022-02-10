@@ -65,15 +65,22 @@ bin/helm install vault fybrik-charts/vault --create-namespace -n fybrik-system \
 bin/helm install fybrik-crd fybrik-charts/fybrik-crd -n fybrik-system --version v$fybrikVersion --wait
 bin/helm install fybrik fybrik-charts/fybrik -n fybrik-system --version v$fybrikVersion --wait
 
-# Related to https://github.com/cert-manager/cert-manager/issues/2908
-# Fybrik webhook not really ready after "helm install --wait"
-# temporary workaround is to add sleep command after fybrik installation
-sleep 10
-
 # apply modules
 
-
-bin/kubectl apply -f https://github.com/fybrik/arrow-flight-module/releases/download/v$moduleVersion/module.yaml -n fybrik-system
+# Related to https://github.com/cert-manager/cert-manager/issues/2908
+# Fybrik webhook not really ready after "helm install --wait"
+# A workaround is to loop until the module is applied as expected
+CMD="bin/kubectl apply -f https://github.com/fybrik/arrow-flight-module/releases/download/v$moduleVersion/module.yaml -n fybrik-system"
+count=0
+until $CMD
+do
+  if [[ $count -eq 10 ]]
+  then
+    break
+  fi
+  sleep 1
+  ((count=count+1))
+done
 
 # Notebook sample
 
