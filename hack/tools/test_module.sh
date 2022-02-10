@@ -59,7 +59,7 @@ bin/helm install cert-manager jetstack/cert-manager \
 bin/helm install vault fybrik-charts/vault --create-namespace -n fybrik-system \
         --set "vault.injector.enabled=false" \
         --set "vault.server.dev.enabled=true" \
-        --values https://raw.githubusercontent.com/fybrik/fybrik/v0.5.3/charts/vault/env/dev/vault-single-cluster-values.yaml
+        --values https://raw.githubusercontent.com/fybrik/fybrik/v$fybrikVersion/charts/vault/env/dev/vault-single-cluster-values.yaml
     bin/kubectl wait --for=condition=ready --all pod -n fybrik-system --timeout=400s
 
 bin/helm install fybrik-crd fybrik-charts/fybrik-crd -n fybrik-system --version v$fybrikVersion --wait
