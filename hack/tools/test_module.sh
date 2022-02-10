@@ -59,21 +59,28 @@ bin/helm install cert-manager jetstack/cert-manager \
 bin/helm install vault fybrik-charts/vault --create-namespace -n fybrik-system \
         --set "vault.injector.enabled=false" \
         --set "vault.server.dev.enabled=true" \
-        --values https://raw.githubusercontent.com/fybrik/fybrik/v0.5.3/charts/vault/env/dev/vault-single-cluster-values.yaml
+        --values https://raw.githubusercontent.com/fybrik/fybrik/v$fybrikVersion/charts/vault/env/dev/vault-single-cluster-values.yaml
     bin/kubectl wait --for=condition=ready --all pod -n fybrik-system --timeout=400s
 
 bin/helm install fybrik-crd fybrik-charts/fybrik-crd -n fybrik-system --version v$fybrikVersion --wait
 bin/helm install fybrik fybrik-charts/fybrik -n fybrik-system --version v$fybrikVersion --wait
 
-# Related to https://github.com/cert-manager/cert-manager/issues/2908
-# Fybrik webhook not really ready after "helm install --wait"
-# temporary workaround is to add sleep command after fybrik installation
-sleep 10
-
 # apply modules
 
-
-bin/kubectl apply -f https://github.com/fybrik/arrow-flight-module/releases/download/v$moduleVersion/module.yaml -n fybrik-system
+# Related to https://github.com/cert-manager/cert-manager/issues/2908
+# Fybrik webhook not really ready after "helm install --wait"
+# A workaround is to loop until the module is applied as expected
+CMD="bin/kubectl apply -f https://github.com/fybrik/arrow-flight-module/releases/download/v$moduleVersion/module.yaml -n fybrik-system"
+count=0
+until $CMD
+do
+  if [[ $count -eq 10 ]]
+  then
+    break
+  fi
+  sleep 1
+  ((count=count+1))
+done
 
 # Notebook sample
 
@@ -87,7 +94,6 @@ bin/kubectl wait --for=condition=ready --all pod -n fybrik-notebook-sample --tim
 
 bin/kubectl port-forward svc/localstack 4566:4566 &
 
-sleep 10
 
 export ENDPOINT="http://127.0.0.1:4566"
 export BUCKET="demo"
@@ -109,7 +115,6 @@ EOF
 
 
 bin/kubectl apply -f $WORKING_DIR/Asset-$moduleResourceVersion.yaml -n fybrik-notebook-sample
-sleep 10
 bin/kubectl describe Asset paysim-csv -n fybrik-notebook-sample
 
 
@@ -122,7 +127,7 @@ while [[ $(bin/kubectl get cm sample-policy -n fybrik-system -o 'jsonpath={.meta
 do
     echo "waiting"
     ((c++)) && ((c==25)) && break
-    sleep 5
+    sleep 1
 done
 
 
@@ -133,10 +138,8 @@ while [[ $(bin/kubectl get fybrikapplication my-notebook -o 'jsonpath={.status.r
 do
     echo "waiting"
     ((c++)) && ((c==30)) && break
-    sleep 6
+    sleep 1
 done
-
-sleep 10
 
 
 bin/kubectl get pods -n fybrik-blueprints
@@ -150,10 +153,20 @@ bin/kubectl exec -i ${POD_NAME} -n fybrik-blueprints -- python /tmp/test.py > re
 bin/kubectl logs ${POD_NAME} -n fybrik-blueprints
 
 DIFF=$(diff -b $WORKING_DIR/expected.txt res.out)
+RES=0
 if [ "${DIFF}" == "" ]
 then
     echo "test succeeded"
 else
-    echo "test failed"
-    exit 1
+    RES=1
+fi
+
+pkill kubectl
+bin/kubectl delete namespace fybrik-notebook-sample
+bin/kubectl -n fybrik-system delete configmap sample-policy
+
+if [ ${RES} == 1 ]
+then
+  echo "test failed"
+  exit 1
 fi
