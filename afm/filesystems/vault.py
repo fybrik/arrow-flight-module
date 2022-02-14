@@ -1,7 +1,7 @@
 # Copyright 2020 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from afm.logging import logger, Error, DataSetID
+from fybrik_python_logging import logger, Error, DataSetID
 import requests
 
 def get_jwt_from_file(file_name):

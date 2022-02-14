@@ -4,7 +4,7 @@
 #
 
 import json
-from afm.logging import logger, init_logger, DataSetID
+from fybrik_python_logging import logger, init_logger, DataSetID
 import os
 
 import pyarrow as pa
@@ -29,7 +29,7 @@ class AFMFlightServer(fl.FlightServerBase):
                 "grpc://0.0.0.0:{}".format(port),
                 auth_handler=AFMAuthHandler(config.auth),
                 *args, **kwargs)
-        init_logger(loglevel, config.app_uuid)
+        init_logger(loglevel, config.app_uuid, 'arrow-flight-server')
         self.config_path = config_path
 
     def _get_dataset(self, asset):
