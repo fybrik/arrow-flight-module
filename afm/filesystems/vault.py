@@ -17,7 +17,7 @@ def vault_jwt_auth(jwt, vault_address, vault_path, role, datasetID):
     full_auth_path = vault_address + vault_path
     logger.trace('authenticating against vault using a JWT token',
         extra={'full_auth_path': str(full_auth_path),
-               DataSetID: datasetID, ForUser: True})
+               DataSetID: datasetID})
     json = {"jwt": jwt, "role": role}
     response = requests.post(full_auth_path, json=json)
     if response.status_code == 200:
