@@ -1,4 +1,4 @@
-from afm.logging import logger
+from afm.logging import logger, ForUser
 from pyarrow import flight
 from pyarrow.flight import ServerAuthHandler
 
@@ -29,7 +29,8 @@ class HttpBasicServerAuthHandler(ServerAuthHandler):
         buf = incoming.read()
         auth = flight.BasicAuth.deserialize(buf)
         logger.info('basic authentication',
-                    extra={'username': auth.username.decode()})
+                    extra={'username': auth.username.decode(),
+                           ForUser: True})
         if auth.username.decode() not in self.creds:
             raise flight.FlightUnauthenticatedError("unknown user")
         if self.creds[auth.username.decode()] != auth.password.decode():
