@@ -3,7 +3,7 @@ labels:
   app.fybrik.io/app-uuid: 12345678
   name: 012d42539692bba841a7
   namespace: default
-read:
+assets:
 - assetID: "test1"
   source:
     connection:
