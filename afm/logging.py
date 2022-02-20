@@ -16,6 +16,7 @@ FuncName      = 'funcName'
 
 Error         = 'error'
 DataSetID     = 'DataSetID'
+ForUser       = 'ForUser'
 
 TRACE = 5
 
