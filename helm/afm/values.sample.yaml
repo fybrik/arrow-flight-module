@@ -1,8 +1,8 @@
 # Try it with `helm install --generate-name --dry-run -f helm/afm/values.sample.yaml helm/afm`
 labels:
-  app.fybrik.io/app-uuid: 12345678
   name: 012d42539692bba841a7
   namespace: default
+uuid: 12345678
 assets:
 - assetID: "test1"
   source:
