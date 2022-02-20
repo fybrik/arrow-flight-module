@@ -1,7 +1,7 @@
-app-uuid: {{ get .Values.labels "app.fybrik.io/app-uuid" | default "app-uuid-missing" }}
-{{ if .Values.read -}}
+app-uuid: {{ .Values.uuid | default "app-uuid-missing" }}
+{{ if .Values.assets -}}
 data:
-{{- range .Values.read }}
+{{- range .Values.assets }}
   - format: {{ .source.format }}
     name: {{ .assetID | quote }}
     {{- if .source.connection.s3 }}
