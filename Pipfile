@@ -3,6 +3,11 @@ name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
+[[source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple"
+verify_ssl = true
+
 [scripts]
 server = "python main.py"
 addlicense = "licenseheaders -y 2020 -o \"IBM Corp\" -d . --ext .py  -t ./LICENSE_HEADER"
@@ -19,7 +24,7 @@ requests = "*"
 fsspec = "==0.8.4"
 aiohttp = "==3.7.4"
 pyyaml = "==5.4.1"
-fybrik_python_logging = {path = "/home/cdoron/hello-world-python-package/dist/fybrik_python_logging-0.1-py3-none-any.whl"}
+fybrik_python_logging = {version="0.6.2", index="testpypi"}
 
 [requires]
 python_version = "3.8"
