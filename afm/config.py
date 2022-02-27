@@ -11,9 +11,9 @@ class Config:
         with open(config_path, 'r') as stream:
             self.values = yaml.safe_load(stream)
 
-    def for_asset(self, asset_name: str) -> dict:
+    def for_asset(self, asset_name: str, capability="") -> dict:
         for asset_info in self.values.get('data', []):
-            if asset_info['name'] == asset_name:
+            if asset_info['name'] == asset_name and (capability == "" or asset_info['capability'] == capability):
                 return asset_info
         raise ValueError(
             "Requested config for undefined asset: {}".format(asset_name))
@@ -36,8 +36,8 @@ class Config:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    def connection_type(self, asset_name: str) -> str:
-       asset_info = self.for_asset(asset_name)
+    def connection_type(self, asset_name: str, capability="") -> str:
+       asset_info = self.for_asset(asset_name, capability)
        if 'connection' in asset_info:
            return asset_info['connection'].get('type')
        return None

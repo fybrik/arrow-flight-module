@@ -9,11 +9,19 @@ workers:
     port: 8080
 data:
   - name: "new-dataset"
+    capability: "read"
+    format: parquet
+    path: "/tmp/new-dataset"
+    connection:
+      type: localfs
+  - name: "new-dataset"
+    capability: "write"
     format: parquet
     path: "/tmp/new-dataset"
     connection:
       type: localfs
   - name: "nyc-taxi.parquet"
+    capability: "read"
     format: parquet
     path: "ursa-labs-taxi-data/2019"
     connection:
