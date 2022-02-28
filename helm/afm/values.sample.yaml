@@ -5,6 +5,7 @@ labels:
 uuid: 12345678
 assets:
 - assetID: "test1"
+  capability: "read"
   source:
     connection:
       name: s3
@@ -27,6 +28,7 @@ assets:
       - col1
       - col2
 - assetID: "test2"
+  capability: "read"
   source:
     connection:
       name: s3
