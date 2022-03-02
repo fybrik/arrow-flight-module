@@ -1,4 +1,4 @@
-from afm.logging import logger
+from fybrik_python_logging import logger
 from pyarrow import flight
 from pyarrow.flight import ServerAuthHandler
 

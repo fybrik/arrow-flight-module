@@ -5,7 +5,7 @@
 from urllib.parse import urlparse, quote
 import requests
 import json
-from afm.logging import logger, DataSetID
+from fybrik_python_logging import logger, DataSetID
 from pyarrow.fs import S3FileSystem
 from afm.filesystems.vault import get_credentials_from_vault
 
