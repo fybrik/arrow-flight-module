@@ -12,18 +12,18 @@ from afm.flight.flight import flight_from_config
 
 from pyarrow.fs import LocalFileSystem
 
-def asset_from_config(config: Config, asset_name: str, partition_path=None):
-    connection_type = config.connection_type(asset_name)
+def asset_from_config(config: Config, asset_name: str, partition_path=None, capability=""):
+    connection_type = config.connection_type(asset_name, capability)
     if connection_type in ['s3', 'httpfs', 'localfs']:
-        return FileSystemAsset(config, asset_name, partition_path)
+        return FileSystemAsset(config, asset_name, partition_path, capability)
     elif connection_type == 'flight':
-        return FlightAsset(config, asset_name)
+        return FlightAsset(config, asset_name, capability=capability)
     raise ValueError(
         "Unsupported connection type: {}".format(config.connection_type))
 
 class Asset:
-    def __init__(self, config: Config, asset_name: str, partition_path=None):
-        asset_config = config.for_asset(asset_name)
+    def __init__(self, config: Config, asset_name: str, partition_path=None, capability=""):
+        asset_config = config.for_asset(asset_name, capability=capability)
         self._config = asset_config
         self._actions = Asset._actions_for_asset(asset_config)
         self._format = asset_config.get("format")
@@ -71,8 +71,8 @@ class Asset:
         return consolidate_actions(actions)
 
 class FileSystemAsset(Asset):
-    def __init__(self, config: Config, asset_name: str, partition_path=None):
-        super().__init__(config, asset_name, partition_path)
+    def __init__(self, config: Config, asset_name: str, partition_path=None, capability=""):
+        super().__init__(config, asset_name, partition_path, capability)
         self._filesystem = FileSystemAsset._filesystem_for_asset(self._config)
 
     @staticmethod
@@ -93,8 +93,8 @@ class FileSystemAsset(Asset):
         return self._filesystem
 
 class FlightAsset(Asset):
-    def __init__(self, config: Config, asset_name: str):
-        super().__init__(config, asset_name)
+    def __init__(self, config: Config, asset_name: str, capability=""):
+        super().__init__(config, asset_name, capability=capability)
         self._flight = flight_from_config(self._config['connection']['flight'])
 
     @property

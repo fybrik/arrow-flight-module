@@ -103,7 +103,7 @@ class AFMFlightServer(fl.FlightServerBase):
                    ForUser: True})
 
         with Config(self.config_path) as config:
-            asset = asset_from_config(config, cmd.asset_name)
+            asset = asset_from_config(config, cmd.asset_name, capability="read")
             workers = workers_from_config(config.workers)
 
         if asset.connection_type == 'flight':
@@ -142,7 +142,7 @@ class AFMFlightServer(fl.FlightServerBase):
                    DataSetID: ticket_info.asset_name,
                    ForUser: True})
         with Config(self.config_path) as config:
-            asset = asset_from_config(config, ticket_info.asset_name, partition_path=ticket_info.partition_path)
+            asset = asset_from_config(config, ticket_info.asset_name, partition_path=ticket_info.partition_path, capability="read")
 
         if asset.connection_type == "flight":
             schema, batches = asset.flight.do_get(context, ticket)
@@ -164,7 +164,7 @@ class AFMFlightServer(fl.FlightServerBase):
                     extra={DataSetID: asset_info['asset'],
                            ForUser: True})
         with Config(self.config_path) as config:
-            asset = asset_from_config(config, asset_info['asset'])
+            asset = asset_from_config(config, asset_info['asset'], capability="write")
             self._write_asset(asset, reader)
 
     def get_schema(self, context, descriptor):
