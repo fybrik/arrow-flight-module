@@ -5,6 +5,14 @@ data:
   - format: {{ .source.format }}
     name: {{ .assetID | quote }}
     capability: {{ .capability }}
+    {{- if .source.connection.fybrik-arrow-flight }}
+    connection:
+      type: flight
+      flight:
+        endpoint_url: {{ .source.connection.fybrik-arrow-flight.hostname }}
+        port: {{ .source.connection.fybrik-arrow-flight.port }}
+        flight_command: "{\"asset\": {{ .assetID | quote }} }"
+    {{- end }}
     {{- if .source.connection.s3 }}
     path: "{{ .source.connection.s3.bucket }}/{{ .source.connection.s3.object_key }}"
     connection:
