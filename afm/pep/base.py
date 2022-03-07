@@ -72,6 +72,8 @@ class Action:
             pyarrow.Schema: a new schema that matches transformed data
         """
         schema: pa.Schema = original
+        if not self.columns:
+            self.columns = schema.names
         columns = [column for column in self.columns if column in schema.names]
         for column in columns:
             field_index = schema.get_field_index(column)
