@@ -16,7 +16,7 @@ data:
       type: localfs
     transformations:
       - action: "Filter"
-        description: "filtering based on id"
+        description: "filtering based on country"
         options:
           query: "Country == 'Israel' or Country == 'United Kingdom'"
   - name: "new-dataset"
