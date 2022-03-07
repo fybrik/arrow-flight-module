@@ -6,7 +6,18 @@ import pandas as pd
 import pyarrow as pa
 import hashlib
 
-from .base import Action
+from .base import Action, PandasAction
+
+class Filter(PandasAction):
+    def __init__(self, description, columns, options):
+        super().__init__(description, columns, options)
+        self.query = options.get('query', '')
+
+    def __dftransform__(self, df: pd.DataFrame) -> pd.DataFrame:
+        if self.query:
+            return df.query(self.query)
+        else:
+            return df
 
 class Redact(Action):
     def __init__(self, description, columns, options):
