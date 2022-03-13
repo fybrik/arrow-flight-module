@@ -41,12 +41,16 @@ data:
     transformations:
     {{- $redactColumns := list -}}
     {{- $removeColumns := list -}}
+    {{- $query := list -}}
     {{- range .transformations -}}
       {{- if eq .name "RedactAction" -}}
         {{- $redactColumns = .RedactAction.columns -}}
       {{- end -}}
       {{- if eq .name "RemoveAction" -}}
         {{- $removeColumns = .RemoveAction.columns -}}
+      {{- end -}}
+      {{- if eq .name "FilterAction" -}}
+        {{- $query = .FilterAction.options.query -}}
       {{- end -}}
     {{- end -}}
     {{- if $redactColumns }}
@@ -66,6 +70,12 @@ data:
           {{- range $removeColumns}}
           - {{ . }}
           {{- end }}
+    {{- end }}
+    {{- if $query }}
+      - action: "Filter"
+        description: "filtering based on query"
+        option:
+          query: "{{ $query }}"
     {{- end }}
     {{- end }}
 {{- end -}}
