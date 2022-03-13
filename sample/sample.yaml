@@ -14,6 +14,11 @@ data:
     path: "/tmp/new-dataset"
     connection:
       type: localfs
+    transformations:
+      - action: "Filter"
+        description: "filtering based on country"
+        options:
+          query: "Country == 'Israel' or Country == 'United Kingdom'"
   - name: "new-dataset"
     capability: "write"
     format: parquet

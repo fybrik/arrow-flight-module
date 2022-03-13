@@ -100,6 +100,22 @@ class Action:
     def __repr__(self):
         return repr(self.__dict__)
 
+class PandasAction(Action):
+    """PandasAction is a class for callable actions that transforms
+       record batches by going through pandas dataframes.
+
+    Subclasses should implement `__dftransform__` for the transformation logic
+    on pandas dataframes.
+    NOTE: __call__ assumes that the transformation does not change the schema
+    """
+    def __call__(self, records: pa.RecordBatch) -> pa.RecordBatch:
+        df = records.to_pandas()
+        df = self.__dftransform__(df)
+        return pa.RecordBatch.from_pandas(df.dropna(), records.schema)
+
+    def __dftransform__(self, df: pd.DataFrame) -> pd.DataFrame:
+        return df
+
 def action_key(action):
     return str(type(action)) + str(action.options)
 
