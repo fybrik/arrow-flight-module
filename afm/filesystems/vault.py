@@ -74,7 +74,7 @@ def get_credentials_from_vault(vault_credentials, datasetID):
                ForUser: True})
     credentials = get_raw_secret_from_vault(jwt, secret_path, vault_address, vault_auth, role, datasetID)
     if not credentials:
-        return None, None
+        raise ValueError("Vault credentials are missing")
     if 'access_key' in credentials and 'secret_key' in credentials:
         if credentials['access_key'] and credentials['secret_key']:
             return credentials['access_key'], credentials['secret_key']
@@ -87,4 +87,4 @@ def get_credentials_from_vault(vault_credentials, datasetID):
                              extra={DataSetID: datasetID, ForUser: True})
     logger.error("Expected both 'access_key' and 'secret_key' fields in vault secret",
                  extra={DataSetID: datasetID, ForUser: True})
-    return None, None
+    raise ValueError("Vault credentials are missing")
