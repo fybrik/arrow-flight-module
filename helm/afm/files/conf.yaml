@@ -74,7 +74,7 @@ data:
     {{- if $query }}
       - action: "Filter"
         description: "filtering based on query"
-        option:
+        options:
           query: "{{ $query }}"
     {{- end }}
     {{- end }}
