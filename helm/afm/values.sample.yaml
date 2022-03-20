@@ -8,10 +8,10 @@ assets:
   - connection:
       name: s3
       s3:
-        bucket: bucket1
-        endpoint: http://s3.fybrik-system:9090
-        object_key: data.csv
-    format: csv
+        bucket: fybrik-test-bucket
+        endpoint: s3.eu-gb.cloud-object-storage.appdomain.cloud
+        object_key: test1.parquet
+    format: parquet
     vault:
       read:
         address: http://vault.fybrik-system:8200
@@ -35,9 +35,9 @@ assets:
   - connection:
       name: s3
       s3:
-        bucket: bucket2
-        endpoint: http://s3.fybrik-system:9090
-        object_key: data.parquet
+        bucket: fybrik-test-bucket
+        endpoint: s3.eu-gb.cloud-object-storage.appdomain.cloud
+        object_key: test2.parquet
     format: parquet
     vault:
       write:

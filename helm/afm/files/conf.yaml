@@ -4,10 +4,10 @@ data:
 {{- range $asset := .Values.assets }}
   - name: {{ $asset.assetID | quote }}
     capability: {{ $asset.capability }}
-    {{- range $args := .args }}
-    format: {{ $args.format | quote }}
+    {{- if and (.args) (eq (len .args) 1) -}}
+    {{- with (index .args 0) }}
+    format: {{ .format | quote }}
     {{- if index . "connection" "fybrik-arrow-flight" }}
-    format: "{{ .connection.format }}"
     connection:
       type: flight
       flight:
@@ -38,6 +38,7 @@ data:
           {{- end }}
         {{- end }}
         {{- end }}
+    {{- end }}
     {{- end }}
     {{- end }}
     {{- if $asset.transformations }}
