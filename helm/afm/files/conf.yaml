@@ -1,26 +1,28 @@
 app-uuid: {{ .Values.uuid | default "app-uuid-missing" }}
 {{ if .Values.assets -}}
 data:
-{{- range .Values.assets }}
-  - format: {{ .source.format }}
-    name: {{ .assetID | quote }}
-    capability: {{ .capability }}
-    {{- if index .source "connection" "fybrik-arrow-flight" }}
+{{- range $asset := .Values.assets }}
+  - name: {{ $asset.assetID | quote }}
+    capability: {{ $asset.capability }}
+    {{- range $args := .args }}
+    format: {{ $args.format | quote }}
+    {{- if index . "connection" "fybrik-arrow-flight" }}
+    format: "{{ .connection.format }}"
     connection:
       type: flight
       flight:
-        endpoint_url: {{ index .source "connection" "fybrik-arrow-flight" "hostname" }}
-        port: {{ index .source "connection" "fybrik-arrow-flight" "port" }}
+        endpoint_url: {{ index . "connection" "fybrik-arrow-flight" "hostname" }}
+        port: {{ index . "connection" "fybrik-arrow-flight" "port" }}
         flight_command: "{ \"asset\": \"{{ .assetID }}\" }"
     {{- end }}
-    {{- if .source.connection.s3 }}
-    path: "{{ .source.connection.s3.bucket }}/{{ .source.connection.s3.object_key }}"
+    {{- if index . "connection" "s3" }}
+    path: "{{ .connection.s3.bucket }}/{{ .connection.s3.object_key }}"
     connection:
       type: s3
       s3:
-        endpoint_url: {{if not (contains "://" .source.connection.s3.endpoint)}}https://{{end}}{{ .source.connection.s3.endpoint }}
-        {{- range $k, $v := .source.vault }}
-        {{- if eq $k "read" }}
+        endpoint_url: {{if not (contains "://" .connection.s3.endpoint)}}https://{{end}}{{ .connection.s3.endpoint }}
+        {{- range $k, $v := .vault }}
+        {{- if or (eq $k "read") (eq $k "write") }}
         vault_credentials:
           {{- if $v.address }}
           address: {{ $v.address }}
@@ -34,15 +36,16 @@ data:
           {{- if $v.secretPath }}
           secretPath: {{ $v.secretPath }}
           {{- end }}
-          {{- end }}
+        {{- end }}
         {{- end }}
     {{- end }}
-    {{- if .transformations }}
+    {{- end }}
+    {{- if $asset.transformations }}
     transformations:
     {{- $redactColumns := list -}}
     {{- $removeColumns := list -}}
     {{- $query := list -}}
-    {{- range .transformations -}}
+    {{- range $asset.transformations -}}
       {{- if eq .name "RedactAction" -}}
         {{- $redactColumns = .RedactAction.columns -}}
       {{- end -}}
