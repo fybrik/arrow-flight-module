@@ -4,18 +4,22 @@ labels:
   namespace: default
 uuid: 12345678
 assets:
-- assetID: "test1"
-  capability: "read"
-  source:
-    connection:
+- args:
+  - connection:
       name: s3
       s3:
         bucket: fybrik-test-bucket
         endpoint: s3.eu-gb.cloud-object-storage.appdomain.cloud
         object_key: test1.parquet
-      type: 2
-    credentialLocation: htttp://test/test
     format: parquet
+    vault:
+      read:
+        address: http://vault.fybrik-system:8200
+        authPath: /v1/auth/kubernetes/login
+        role: module
+        secretPath: /v1/kubernetes-secrets/data-creds?namespace=fybrik-notebook-sample
+  assetID: "test1"
+  capability: read
   transformations:
   - name: "RedactAction"
     RedactAction:
@@ -27,18 +31,22 @@ assets:
       columns:
       - col1
       - col2
-- assetID: "test2"
-  capability: "read"
-  source:
-    connection:
+- args:
+  - connection:
       name: s3
       s3:
         bucket: fybrik-test-bucket
         endpoint: s3.eu-gb.cloud-object-storage.appdomain.cloud
         object_key: test2.parquet
-      type: 2
-    credentialLocation: htttp://test/test
     format: parquet
+    vault:
+      write:
+        address: http://vault.fybrik-system:8200
+        authPath: /v1/auth/kubernetes/login
+        role: module
+        secretPath: /v1/kubernetes-secrets/data-creds?namespace=fybrik-notebook-sample
+  assetID: "test2"
+  capability: write
   transformations:
   - name: "RedactAction"
     RedactAction:
