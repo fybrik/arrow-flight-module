@@ -1,3 +1,7 @@
+#
+# Copyright 2020 IBM Corp.
+# SPDX-License-Identifier: Apache-2.0
+#
 from fybrik_python_logging import logger
 from pyarrow import flight
 from pyarrow.flight import ServerAuthHandler
