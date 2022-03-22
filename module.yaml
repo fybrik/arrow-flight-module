@@ -47,3 +47,5 @@ spec:
       actions:
         - name: RedactAction
         - name: RemoveAction
+        - name: FilterAction
+        - name: AgeFilterAction

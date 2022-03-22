@@ -5,6 +5,8 @@
 import pandas as pd
 import pyarrow as pa
 import hashlib
+from time import time
+from datetime import datetime
 
 from .base import Action, PandasAction
 
@@ -16,6 +18,20 @@ class Filter(PandasAction):
     def __dftransform__(self, df: pd.DataFrame) -> pd.DataFrame:
         if self.query:
             return df.query(self.query)
+        else:
+            return df
+
+class AgeFilter(PandasAction):
+    def __init__(self, description, columns, options):
+        super().__init__(description, columns, options)
+        age = int(options.get('age', 18))
+        self.cutoff = datetime.fromtimestamp(time() - age*365*24*60*60)
+
+    def __dftransform__(self, df: pd.DataFrame) -> pd.DataFrame:
+        if self.columns:
+            for column in self.columns:
+                df = df[pd.to_datetime(df[column]) < self.cutoff]
+            return df
         else:
             return df
 
