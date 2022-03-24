@@ -19,6 +19,12 @@ data:
         description: "filtering based on country"
         options:
           query: "Country == 'Israel' or Country == 'United Kingdom'"
+      - action: "AgeFilter"
+        description: "filtering based on age"
+        columns:
+          - Date of Birth
+        options:
+          age: 40
   - name: "new-dataset"
     capability: "write"
     format: parquet
