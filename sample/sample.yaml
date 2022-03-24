@@ -25,6 +25,13 @@ data:
     path: "/tmp/new-dataset"
     connection:
       type: localfs
+    transformations:
+      - action: "Redact"
+        description: "redact stuff"
+        columns:
+          - Date of Birth
+        options:
+          redactValue: "XXXXX"
   - name: "nyc-taxi.parquet"
     capability: "read"
     format: parquet

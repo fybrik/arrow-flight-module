@@ -171,3 +171,21 @@ def transform_schema(actions, schema):
     for action in actions:
         schema = action.schema(schema)
     return schema
+    
+def transform_batches(actions, record_batches):
+    """Transform record batches according to actions.
+
+    Args:
+        actions (list): actions to apply
+        record_batches (list): list of recrod batches to act on
+
+    Returns:
+        [pyarrow.RecordBatch]: list of the transformed record batches
+    """
+    transformed_batches = []
+    for record_batch in record_batches:
+        item = record_batch
+        for action in actions:
+            item = action(item)
+        transformed_batches.append(item)
+    return transformed_batches
