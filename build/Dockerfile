@@ -16,7 +16,7 @@ COPY afm afm
 EXPOSE 8080
 
 ENTRYPOINT ["python3"]
-CMD ["main.py"]
+CMD ["main.py", "--loglevel", "trace"]
 
 USER ${USER_UID}
 
