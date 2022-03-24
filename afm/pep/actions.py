@@ -25,7 +25,8 @@ class AgeFilter(PandasAction):
     def __init__(self, description, columns, options):
         super().__init__(description, columns, options)
         age = int(options.get('age', 18))
-        self.cutoff = datetime.fromtimestamp(time() - age*365*24*60*60)
+        now = datetime.fromtimestamp(time())
+        self.cutoff = now.replace(year=(now.year-age))
 
     def __dftransform__(self, df: pd.DataFrame) -> pd.DataFrame:
         if self.columns:
