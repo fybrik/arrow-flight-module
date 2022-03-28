@@ -58,11 +58,11 @@ data:
       {{- if eq .name "FilterAction" -}}
         {{- $query = .FilterAction.options.query -}}
       {{- end -}}
-    {{- end -}}
       {{- if eq .name "AgeFilterAction" -}}
         {{- $ageFilterColumns = .AgeFilterAction.columns -}}
         {{- $age = .AgeFilterAction.options.age -}}
       {{- end -}}
+    {{- end -}}
     {{- if $redactColumns }}
       - action: "Redact"
         description: "redacting columns: {{ $redactColumns }}"

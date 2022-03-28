@@ -1,4 +1,4 @@
-{{- if .Values.read -}}
+{{- if .Values.assets -}}
 # Example usage in Python
 
 ```python
@@ -11,13 +11,13 @@ client = fl.connect("grpc://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.clu
 
 # Prepare the request
 request = {
-    {{- if gt (len .Values.read) 1 }}
+    {{- if gt (len .Values.assets) 1 }}
     # You can request any of the following assets:
-    {{- range .Values.read }}
+    {{- range .Values.assets }}
     # - {{ .assetID | quote }}
     {{- end }}
     {{- end }}   
-    "asset": {{ (index .Values.read 0).assetID | quote }},
+    "asset": {{ (index .Values.assets 0).assetID | quote }},
     # To request specific columns add to the request a "columns" key with a list of column names
     # "columns": [...]
 }		
