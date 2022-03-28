@@ -17,7 +17,7 @@ from pyarrow.fs import FileSelector
 from .asset import asset_from_config
 from .command import AFMCommand
 from .config import Config
-from .pep import transform, transform_schema, actions
+from .pep import transform, transform_schema, transform_batches, actions
 from .ticket import AFMTicket
 from .worker import workers_from_config
 from .auth import AFMAuthHandler
@@ -58,9 +58,10 @@ class AFMFlightServer(fl.FlightServerBase):
     # write arrow dataset to filesystem
     def _write_asset(self, asset, reader):
         # in this implementation we currently begin by reading the entire dataset
-        t = reader.read_all().combine_chunks()
+        record_batches = reader.read_all().combine_chunks().to_batches()
+        transformed_batches = transform_batches(asset.actions, record_batches)
         # currently, write_dataset supports the parquet format, but not csv
-        ds.write_dataset(t, base_dir=asset.path, format=asset.format,
+        ds.write_dataset(transformed_batches, base_dir=asset.path, format=asset.format,
                          filesystem=asset.filesystem)
 
     def _read_asset(self, asset, columns=None):
