@@ -8,7 +8,7 @@ The arrow-flight-module (AFM) for [Fybrik](https://github.com/fybrik/fybrik) bri
 
 ## What is it? 
 
-AFM is a flight server Flight server that enables applications to consume tabular data from data sources. More importantly, the AFM is also a Policy Enforcement Point (PEP) capable of performing enforcement actions dictated by a Policy Decision Point.
+AFM is a Flight server that enables applications to consume tabular data from data sources. More importantly, the AFM is also a Policy Enforcement Point (PEP) capable of performing enforcement actions dictated by a Policy Decision Point.
 Such enforcement actions include blocking unauthorized requests, validating and transforming data payloads. 
 
 ## Register as a Fybrik module
