@@ -61,12 +61,18 @@ class AFMFlightServer(fl.FlightServerBase):
         # in this implementation we currently begin by reading the entire dataset
         record_batches = reader.read_all().combine_chunks().to_batches()
         transformed_batches = transform_batches(asset.actions, record_batches)
+        # If the client's request is to append to the existing data then the flag `overwrite_or_ignore`
+        # is used with a unique basename_template that is related to the time of writing.
+        # This operation writes the data to a new file while ignoring (not changing) the existed files.
+        # Otherwise, the flag `delete_mathing` is used. This operation writes the data to a new file
+        # while deleting the existed files.
         if write_mode == "append":
             logger.trace("write_mode: append", extra={DataSetID: asset.name, ForUser: True})
-            ds.write_dataset(transformed_batches, base_dir=asset.path, basename_template="part-{:%Y-%m-%d-%H-%M-%S-%f}-{{i}}.parquet".format(datetime.datetime.now()), format=asset.format,  filesystem=asset.filesystem, existing_data_behavior='overwrite_or_ignore')
+            existing_data_behavior='overwrite_or_ignore'
         else:
             logger.trace("write_mode: overwrite", extra={DataSetID: asset.name, ForUser: True})
-            ds.write_dataset(transformed_batches, base_dir=asset.path, basename_template="part-{:%Y-%m-%d-%H-%M-%S-%f}-{{i}}.parquet".format(datetime.datetime.now()), format=asset.format, filesystem=asset.filesystem, existing_data_behavior='delete_matching')
+            existing_data_behavior='delete_matching'
+        ds.write_dataset(transformed_batches, base_dir=asset.path, basename_template="part-{:%Y-%m-%d-%H-%M-%S-%f}-{{i}}.parquet".format(datetime.datetime.now()), format=asset.format, filesystem=asset.filesystem, existing_data_behavior=existing_data_behavior)
 
     def _read_asset(self, asset, columns=None):
         dataset, data_files = self._get_dataset(asset)
