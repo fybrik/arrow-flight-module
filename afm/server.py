@@ -62,10 +62,10 @@ class AFMFlightServer(fl.FlightServerBase):
         record_batches = reader.read_all().combine_chunks().to_batches()
         transformed_batches = transform_batches(asset.actions, record_batches)
         if write_mode == "append":
-            logger.trace("write_mode: append")
+            logger.trace("write_mode: append", extra={DataSetID: asset.name, ForUser: True})
             ds.write_dataset(transformed_batches, base_dir=asset.path, basename_template="part-{:%Y-%m-%d-%H-%M-%S-%f}-{{i}}.parquet".format(datetime.datetime.now()), format=asset.format,  filesystem=asset.filesystem, existing_data_behavior='overwrite_or_ignore')
         else:
-            logger.trace("write_mode: overwrite")
+            logger.trace("write_mode: overwrite", extra={DataSetID: asset.name, ForUser: True})
             ds.write_dataset(transformed_batches, base_dir=asset.path, basename_template="part-{:%Y-%m-%d-%H-%M-%S-%f}-{{i}}.parquet".format(datetime.datetime.now()), format=asset.format, filesystem=asset.filesystem, existing_data_behavior='delete_matching')
 
     def _read_asset(self, asset, columns=None):
@@ -165,7 +165,6 @@ class AFMFlightServer(fl.FlightServerBase):
 
     def do_put(self, context, descriptor, reader, writer):
         asset_info = json.loads(descriptor.command)
-        logger.trace(asset_info)
         logger.info('writing dataset',
                     extra={DataSetID: asset_info['asset'],
                            ForUser: True})
