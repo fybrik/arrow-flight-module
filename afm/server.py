@@ -66,11 +66,10 @@ class AFMFlightServer(fl.FlightServerBase):
         # This operation writes the data to a new file while ignoring (not changing) the existed files.
         # Otherwise, the flag `delete_mathing` is used. This operation writes the data to a new file
         # while deleting the existed files.
+        logger.trace("write_mode: " + write_mode, extra={DataSetID: asset.name, ForUser: True})
         if write_mode == "append":
-            logger.trace("write_mode: append", extra={DataSetID: asset.name, ForUser: True})
             existing_data_behavior='overwrite_or_ignore'
         else:
-            logger.trace("write_mode: overwrite", extra={DataSetID: asset.name, ForUser: True})
             existing_data_behavior='delete_matching'
         ds.write_dataset(transformed_batches, base_dir=asset.path, basename_template="part-{:%Y-%m-%d-%H-%M-%S-%f}-{{i}}.parquet".format(datetime.datetime.now()), format=asset.format, filesystem=asset.filesystem, existing_data_behavior=existing_data_behavior)
 
