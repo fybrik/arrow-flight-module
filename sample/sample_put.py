@@ -26,6 +26,8 @@ class HttpBasicClientAuthHandler(fl.ClientAuthHandler):
 
 request = {
     "asset": "new-dataset", 
+    # write_mode can be append or overwrite. The default is overwrite.
+    # "write_mode": "append",
 }
 
 def fake_dataset(num_entries):

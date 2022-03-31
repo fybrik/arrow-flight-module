@@ -19,7 +19,7 @@ pylint = "*"
 
 [packages]
 pandas = "==1.0.5"
-pyarrow = "==2.0.0"
+pyarrow = "==7.0.0"
 requests = "*"
 fsspec = "==0.8.4"
 aiohttp = "==3.7.4"
