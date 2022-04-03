@@ -13,7 +13,7 @@ data:
       flight:
         endpoint_url: {{ index . "connection" "fybrik-arrow-flight" "hostname" }}
         port: {{ index . "connection" "fybrik-arrow-flight" "port" }}
-        flight_command: "{ \"asset\": \"{{ .assetID }}\" }"
+        flight_command: "{ \"asset\": \"{{ $asset.assetID }}\" }"
     {{- end }}
     {{- if index . "connection" "s3" }}
     path: "{{ .connection.s3.bucket }}/{{ .connection.s3.object_key }}"
