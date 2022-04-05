@@ -44,6 +44,9 @@ spec:
         - sink:
             protocol: s3
             dataformat: parquet
+        - sink:
+            protocol: s3
+            dataformat: csv
       actions:
         - name: RedactAction
         - name: RemoveAction
