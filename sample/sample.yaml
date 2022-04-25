@@ -35,7 +35,7 @@ data:
       - action: "Redact"
         description: "redact stuff"
         columns:
-          - Date of Birth
+          - Email
         options:
           redactValue: "XXXXX"
   - name: "nyc-taxi.parquet"
