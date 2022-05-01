@@ -6,6 +6,7 @@ import argparse
 from afm.server import AFMFlightServer
 from fybrik_python_logging import logger
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='AFM Flight Server')
     parser.add_argument(
