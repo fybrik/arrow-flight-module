@@ -17,6 +17,9 @@ test:
 .PHONY: build
 build:
 	pipenv lock -r > requirements.txt
+	echo QQQ BEFORE
+	cat requirements.txt
+	echo QQQ AFTER
 	docker build -f build/Dockerfile . -t ${IMG}
 	rm requirements.txt
 
