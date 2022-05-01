@@ -16,7 +16,7 @@ test:
 
 .PHONY: build
 build:
-	pipenv lock -r > requirements.txt
+	pipenv lock -r | sed -n '/^#/,$$p' > requirements.txt
 	docker build -f build/Dockerfile . -t ${IMG}
 	rm requirements.txt
 
