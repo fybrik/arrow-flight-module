@@ -16,7 +16,7 @@ test:
 
 .PHONY: build
 build:
-	pipenv lock -r > requirements.txt
+	pipenv requirements > requirements.txt
 	echo QQQ BEFORE
 	cat requirements.txt
 	echo QQQ AFTER
