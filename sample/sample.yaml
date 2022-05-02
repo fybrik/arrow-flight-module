@@ -19,12 +19,12 @@ data:
         description: "filtering based on country"
         options:
           query: "Country == 'Israel' or Country == 'United Kingdom'"
-      - action: "AgeFilter"
-        description: "filtering based on age"
+      - action: "Redact"
+        description: "redact stuff"
         columns:
           - Date of Birth
         options:
-          age: 40
+          redactValue: "XXXXX"
   - name: "new-dataset"
     capability: "write"
     format: parquet
@@ -32,12 +32,12 @@ data:
     connection:
       type: localfs
     transformations:
-      - action: "Redact"
-        description: "redact stuff"
+      - action: "AgeFilter"
+        description: "filtering based on age"
         columns:
           - Date of Birth
         options:
-          redactValue: "XXXXX"
+          age: 40
   - name: "nyc-taxi.parquet"
     capability: "read"
     format: parquet
