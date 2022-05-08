@@ -71,7 +71,7 @@ class AFMFlightServer(fl.FlightServerBase):
             existing_data_behavior='overwrite_or_ignore'
         else:
             existing_data_behavior='delete_matching'
-        ds.write_dataset(transformed_batches, base_dir=asset.path, basename_template="part-{:%Y-%m-%d-%H-%M-%S-%f}-{{i}}.parquet".format(datetime.datetime.now()), format=asset.format, filesystem=asset.filesystem, existing_data_behavior=existing_data_behavior)
+        ds.write_dataset(transformed_batches, base_dir=asset.path, basename_template="part-{:%Y-%m-%d-%H-%M-%S-%f}-{{i}}".format(datetime.datetime.now()), format=asset.format, filesystem=asset.filesystem, existing_data_behavior=existing_data_behavior)
 
     def _read_asset(self, asset, columns=None):
         dataset, data_files = self._get_dataset(asset)
