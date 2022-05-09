@@ -28,9 +28,13 @@ spec:
         - source:
             protocol: s3
             dataformat: csv
+        - source:
+            protocol: fybrik-arrow-flight
       actions:
         - name: RedactAction
         - name: RemoveAction
+        - name: FilterAction
+        - name: AgeFilterAction
     - capability: write
       scope: workload
       api:
