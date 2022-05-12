@@ -4,7 +4,6 @@
 #
 from urllib.parse import urlparse, quote
 import requests
-import json
 from fybrik_python_logging import logger, DataSetID, ForUser
 from pyarrow.fs import S3FileSystem
 from fybrik_python_vault import get_jwt_from_file, get_raw_secret_from_vault
