@@ -45,7 +45,7 @@ deploying it to Kubernetes. Deployment will install a Helm release named `afm` t
 - make
 - Docker
 - kubectl with access to a kubernetes cluster (e.g., a [kind](https://kind.sigs.k8s.io/) cluster)
-- [Helm 3.7.x](https://helm.sh/docs/intro/install/)
+- [Helm 3.7](https://helm.sh/docs/intro/install/) or above
 
 ### Deploy to kind clusters
 
