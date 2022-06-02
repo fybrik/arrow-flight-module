@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     # Versions are created as follows (In helm 3.7 OCI reference tags must be valid SemVer):
     # - Tags starting with v will be released as what comes after `v`. (e.g. refs/tags/v1.0 -> 1.0).
     # - Release branches will be released as the release number (e.g. refs/heads/releases/1.0 -> 1.0-rc).
@@ -48,7 +48,7 @@ jobs:
       with:
         version: v3.7.0
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: '3.x'
     - name: Install dependencies
