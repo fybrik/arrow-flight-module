@@ -30,3 +30,19 @@ Create chart name and version as used by the chart label.
 {{- define "arrow-flight-module.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+processPodSecurityContext skips certain keys in Values.podSecurityContext
+map if running on openshift.
+*/}}
+{{- define "fybrik.processPodSecurityContext" }}
+{{- $podSecurityContext := deepCopy .podSecurityContext }}
+{{- if .context.Capabilities.APIVersions.Has "security.openshift.io/v1" }}
+  {{- range $k, $v := .podSecurityContext }}
+    {{- if or (eq $k "runAsUser") (eq $k "seccompProfile") }}
+      {{- $_ := unset $podSecurityContext $k }}
+    {{- end }}
+   {{- end }}
+{{- end }}
+{{- $podSecurityContext | toYaml }}
+{{- end }}

@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: ghcr.io/fybrik/arrow-flight-module
   tag: 0.0.0
-  pullPolicy: null
+  pullPolicy: Always
   pullSecret: null
 
 nameOverride: ""
@@ -28,6 +28,25 @@ resources: {}
   # requests:
   #  cpu: 100m
   #  memory: 128Mi
+
+# Pod Security Context.
+# ref: https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#security-context
+podSecurityContext:
+  runAsNonRoot: true
+  # Ignored on openshift.
+  runAsUser: 10001
+  # Ignored on openshift.
+  seccompProfile:
+    type: RuntimeDefault
+# Container Security Context.
+# ref: https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#security-context-1
+containerSecurityContext:
+  readOnlyRootFilesystem: true
+  privileged: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
 
 nodeSelector: {}
 
