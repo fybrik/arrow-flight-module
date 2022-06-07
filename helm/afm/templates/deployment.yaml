@@ -25,6 +25,8 @@ spec:
         sidecar.istio.io/inject: "true"
     spec:
       serviceAccountName: {{ include "arrow-flight-module.fullname" . }}
+      securityContext:
+        {{- include "fybrik.processPodSecurityContext" (dict "context" . "podSecurityContext" .Values.podSecurityContext) | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -35,6 +37,8 @@ spec:
             - name: grpc
               containerPort: 8080
               protocol: TCP
+          securityContext:
+          {{- .Values.containerSecurityContext | toYaml | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

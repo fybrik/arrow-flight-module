@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 
-ENV USER_UID=1001 \
+ENV USER_UID=10001 \
     USER_NAME=afm
 
 COPY  build/bin /usr/local/bin
