@@ -5,12 +5,28 @@ on:
       kind-version:
         required: true
         default: 'kind19'
+        type: choice
+        options:
+        - kind19
+        - kind20
+        - kind21
+        - kind22
       fybrik-version:
         required: true
-        default: '0.6.0'
+        default: '0.7.0'
+        type: choice
+        options:
+        - '0.5.0'
+        - '0.6.0'
+        - '0.7.0'
+        - 'master'
       module-version:
         required: true
-        default: '0.6.0'
+        default: '0.7.0'
+        - '0.5.0'
+        - '0.6.0'
+        - '0.7.0'
+        - 'master'
       cert-manager-version:
         required: true
         default: '1.6.2'
@@ -37,5 +53,5 @@ jobs:
         version: 2     # default
         verbose: false # default
     - name: run-test
-      run: pushd hack && ./test_module.sh ${{ github.event.inputs.kind-version }} ${{ github.event.inputs.fybrik-version }} ${{ github.event.inputs.module-version }} ${{ github.event.inputs.module-type }} ${{ github.event.inputs.cert-manager-version }}
+      run: pushd hack && ./test_module.sh ${{ github.event.inputs.kind-version }} ${{ github.event.inputs.fybrik-version }} ${{ github.event.inputs.module-version }} ${{ github.event.inputs.cert-manager-version }}
 

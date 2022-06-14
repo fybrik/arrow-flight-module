@@ -18,6 +18,17 @@ certManagerVersion=$4
 # to construct the module resource path
 moduleResourceVersion=${moduleVersion%??}".0"
 
+if [ $moduleVersion == '0.5.0' ] || [ $moduleVersion == '0.6.0' ] || [ $moduleVersion == '0.7.0' ]
+then
+  oldTestVersion=true
+elif [ $moduleVersion == 'master' ]
+then
+    oldTestVersion=false
+else
+    git checkout releases/$moduleVersion
+    oldTestVersion=false
+fi
+
 if [ $kubernetesVersion == "kind19" ]
 then
     ${TOOLBIN}/kind delete cluster
@@ -55,23 +66,40 @@ ${TOOLBIN}/helm install cert-manager jetstack/cert-manager \
     --set installCRDs=true \
     --wait --timeout 400s
 
-
-
-${TOOLBIN}/helm install vault fybrik-charts/vault --create-namespace -n fybrik-system \
+if [ $fybrikVersion == "master" ]
+then
+	rm -rf fybrik
+	git clone https://github.com/fybrik/fybrik.git
+	cd fybrik
+	../${TOOLBIN}/helm dependency update charts/vault
+	../${TOOLBIN}/helm install vault charts/vault --create-namespace -n fybrik-system \
+	    --set "vault.injector.enabled=false" \
+	    --set "vault.server.dev.enabled=true" \
+	    --values charts/vault/env/dev/vault-single-cluster-values.yaml
+	../${TOOLBIN}/kubectl wait --for=condition=ready --all pod -n fybrik-system --timeout=120s
+	../${TOOLBIN}/helm install fybrik-crd charts/fybrik-crd -n fybrik-system --wait
+	../${TOOLBIN}/helm install fybrik charts/fybrik --set global.tag=master -n fybrik-system --wait
+	cd -
+	rm -rf fybrik
+else
+	${TOOLBIN}/helm install vault fybrik-charts/vault --create-namespace -n fybrik-system \
         --set "vault.injector.enabled=false" \
         --set "vault.server.dev.enabled=true" \
         --values https://raw.githubusercontent.com/fybrik/fybrik/v$fybrikVersion/charts/vault/env/dev/vault-single-cluster-values.yaml
     ${TOOLBIN}/kubectl wait --for=condition=ready --all pod -n fybrik-system --timeout=400s
 
-${TOOLBIN}/helm install fybrik-crd fybrik-charts/fybrik-crd -n fybrik-system --version v$fybrikVersion --wait
-${TOOLBIN}/helm install fybrik fybrik-charts/fybrik -n fybrik-system --version v$fybrikVersion --wait
+	${TOOLBIN}/helm install fybrik-crd fybrik-charts/fybrik-crd -n fybrik-system --version v$fybrikVersion --wait
+	${TOOLBIN}/helm install fybrik fybrik-charts/fybrik -n fybrik-system --version v$fybrikVersion --wait
+fi
 
 # apply modules
 
 # Related to https://github.com/cert-manager/cert-manager/issues/2908
 # Fybrik webhook not really ready after "helm install --wait"
 # A workaround is to loop until the module is applied as expected
-CMD="${TOOLBIN}/kubectl apply -f https://github.com/fybrik/arrow-flight-module/releases/download/v$moduleVersion/module.yaml -n fybrik-system"
+DOCKER_TAG=$moduleVersion $WORKING_DIR/update_module.sh
+CMD="${TOOLBIN}/kubectl apply -f ../module.yaml -n fybrik-system"
+
 count=0
 until $CMD
 do
@@ -115,12 +143,22 @@ stringData:
 EOF
 
 
-${TOOLBIN}/kubectl apply -f $WORKING_DIR/Asset-$moduleResourceVersion.yaml -n fybrik-notebook-sample
+if [ $moduleVersion == "master" ] || [ $oldTestVersion = false ]
+then
+	${TOOLBIN}/kubectl apply -f $WORKING_DIR/Asset.yaml -n fybrik-notebook-sample
+else
+	${TOOLBIN}/kubectl apply -f $WORKING_DIR/Asset-$moduleResourceVersion.yaml -n fybrik-notebook-sample
+fi
+
 ${TOOLBIN}/kubectl describe Asset paysim-csv -n fybrik-notebook-sample
 
 
-
-${TOOLBIN}/kubectl -n fybrik-system create configmap sample-policy --from-file=$WORKING_DIR/sample-policy-$moduleResourceVersion.rego
+if [ $moduleVersion == "master" ] || [ $oldTestVersion = false ]
+then
+	${TOOLBIN}/kubectl -n fybrik-system create configmap sample-policy --from-file=$WORKING_DIR/sample-policy.rego
+else
+	${TOOLBIN}/kubectl -n fybrik-system create configmap sample-policy --from-file=$WORKING_DIR/sample-policy-$moduleResourceVersion.rego
+fi
 ${TOOLBIN}/kubectl -n fybrik-system label configmap sample-policy openpolicyagent.org/policy=rego
 
 c=0
@@ -132,7 +170,12 @@ do
 done
 
 
-${TOOLBIN}/kubectl apply -f $WORKING_DIR/fybrikapplication-$moduleResourceVersion.yaml
+if [ $moduleVersion == "master" ] || [ $oldTestVersion = false ]
+then
+	${TOOLBIN}/kubectl apply -f $WORKING_DIR/fybrikapplication.yaml
+else
+	${TOOLBIN}/kubectl apply -f $WORKING_DIR/fybrikapplication-$moduleResourceVersion.yaml
+fi
 
 c=0
 while [[ $(${TOOLBIN}/kubectl get fybrikapplication my-notebook -o 'jsonpath={.status.ready}') != "true" ]]

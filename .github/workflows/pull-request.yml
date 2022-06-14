@@ -14,7 +14,11 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-
+    env:
+      kubectlVersion: 'kind20'
+      fybrikVersion: 'master'
+      moduleVersion: 'master'
+      certManagerVersion: '1.6.2'
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
@@ -26,6 +30,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
         pip install pipenv
-    - name: Build docker image 
+    - name: Install tools
+      run: make install-tools
+    - name: run-test
+      run: pushd hack && ./test_module.sh $kubectlVersion $fybrikVersion $moduleVersion $certManagerVersion
+    - name: Build docker image
       run: make build
-
