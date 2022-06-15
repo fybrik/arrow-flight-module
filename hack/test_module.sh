@@ -97,8 +97,12 @@ fi
 # Related to https://github.com/cert-manager/cert-manager/issues/2908
 # Fybrik webhook not really ready after "helm install --wait"
 # A workaround is to loop until the module is applied as expected
-DOCKER_TAG=$moduleVersion $WORKING_DIR/update_module.sh
-CMD="${TOOLBIN}/kubectl apply -f ../module.yaml -n fybrik-system"
+if [ $moduleVersion == "master" ]
+then
+	CMD="${TOOLBIN}/kubectl apply -f https://raw.githubusercontent.com/fybrik/arrow-flight-module/master/module.yaml -n fybrik-system"
+else
+	CMD="${TOOLBIN}/kubectl apply -f https://github.com/fybrik/arrow-flight-module/releases/download/v$moduleVersion/module.yaml -n fybrik-system"
+fi
 
 count=0
 until $CMD
