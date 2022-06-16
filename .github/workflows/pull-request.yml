@@ -21,6 +21,10 @@ jobs:
       certManagerVersion: '1.6.2'
     steps:
     - uses: actions/checkout@v3
+    - name: Install Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ env.GO_VERSION }}
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
