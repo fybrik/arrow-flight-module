@@ -32,6 +32,11 @@ jobs:
         pip install pipenv
     - name: Install tools
       run: make install-tools
+    - name: Install AWS cli
+      uses: unfor19/install-aws-cli-action@v1
+      with:
+        version: 2     # default
+        verbose: false # default
     - name: run-test
       run: pushd hack && ./test_module.sh $kubectlVersion $fybrikVersion $moduleVersion $certManagerVersion
     - name: Build docker image
