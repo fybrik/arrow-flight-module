@@ -14,19 +14,9 @@ on:
       fybrik-version:
         required: true
         default: '0.7.0'
-        type: choice
-        options:
-        - '0.5.0'
-        - '0.6.0'
-        - '0.7.0'
-        - 'master'
       module-version:
         required: true
         default: '0.7.0'
-        - '0.5.0'
-        - '0.6.0'
-        - '0.7.0'
-        - 'master'
       cert-manager-version:
         required: true
         default: '1.6.2'
