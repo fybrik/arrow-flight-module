@@ -193,6 +193,7 @@ done
 ${TOOLBIN}/kubectl get pods -n fybrik-blueprints
 POD_NAME=$(${TOOLBIN}/kubectl get pods -n fybrik-blueprints -o=name | sed "s/^.\{4\}//")
 
+${TOOLBIN}/kubectl get cm -n fybrik-blueprints -o yaml
 
 ${TOOLBIN}/kubectl cp $WORKING_DIR/test.py ${POD_NAME}:/tmp -n fybrik-blueprints
 ${TOOLBIN}/kubectl exec -i ${POD_NAME} -n fybrik-blueprints -- python /tmp/test.py > res.out
