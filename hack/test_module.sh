@@ -25,7 +25,7 @@ elif [ $moduleVersion == 'master' ]
 then
     oldTestVersion=false
 else
-    git checkout releases/$moduleVersion
+    git checkout tags/v$moduleVersion
     oldTestVersion=false
 fi
 
