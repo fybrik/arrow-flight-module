@@ -1,4 +1,4 @@
-apiVersion: app.fybrik.io/v1alpha1
+apiVersion: app.fybrik.io/v1
 kind: FybrikModule
 metadata:
   name: arrow-flight-module
