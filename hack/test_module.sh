@@ -99,7 +99,7 @@ fi
 # A workaround is to loop until the module is applied as expected
 if [ $moduleVersion == "master" ]
 then
-	CMD="${TOOLBIN}/kubectl apply -f https://raw.githubusercontent.com/fybrik/arrow-flight-module/master/module.yaml -n fybrik-system"
+	CMD="${TOOLBIN}/kubectl apply -f ../module.yaml -n fybrik-system"
 else
 	CMD="${TOOLBIN}/kubectl apply -f https://github.com/fybrik/arrow-flight-module/releases/download/v$moduleVersion/module.yaml -n fybrik-system"
 fi
