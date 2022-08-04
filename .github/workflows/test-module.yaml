@@ -4,7 +4,7 @@ on:
     inputs:
       kind-version:
         required: true
-        default: 'kind19'
+        default: 'kind22'
         type: choice
         options:
         - kind19
