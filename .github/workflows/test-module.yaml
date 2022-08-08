@@ -4,19 +4,21 @@ on:
     inputs:
       kind-version:
         required: true
-        default: 'kind19'
+        default: 'kind22'
         type: choice
         options:
         - kind19
         - kind20
         - kind21
         - kind22
+        - kind23
+        - kind24
       fybrik-version:
         required: true
-        default: '0.7.0'
+        default: '1.0.1'
       module-version:
         required: true
-        default: '0.7.0'
+        default: '0.8.0'
       cert-manager-version:
         required: true
         default: '1.6.2'
@@ -31,6 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     - name: Install Go
       uses: actions/setup-go@v3
       with:
