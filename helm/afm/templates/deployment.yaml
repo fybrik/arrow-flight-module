@@ -41,14 +41,46 @@ spec:
           {{- .Values.containerSecurityContext | toYaml | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: DATA_DIR
+              value: {{ include "fybrik.getDataDir" . }}
+            - name: MIN_TLS_VERSION
+              value:  {{ .Values.tls.minVersion }}
           volumeMounts:
+            - name: data
+              mountPath: {{ include "fybrik.getDataDir" . }}
             - readOnly: true
               mountPath: /etc/conf
               name: config
+            {{- if .Values.tls.certs.certSecretName }}
+            - mountPath: {{ include "fybrik.getDataSubdir" ( tuple "tls-cert" ) }}
+              name: tls-cert
+              readOnly: true
+            {{- end }}
+            {{- if .Values.tls.certs.cacertSecretName }}
+            - mountPath: {{ include "fybrik.getDataSubdir" ( tuple "tls-cacert" ) }}
+              name: tls-cacert
+              readOnly: true
+            {{- end }}
       volumes:
+        - name: data
+          emptyDir:
+            sizeLimit: {{ .Values.dataDirSizeLimit }}
         - name: config
           configMap:
             name: {{ include "arrow-flight-module.fullname" . }}
+        {{- if .Values.tls.certs.certSecretName }}
+        - name: tls-cert
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.tls.certs.certSecretName }}
+        {{- end }}
+        {{- if .Values.tls.certs.cacertSecretName }}
+        - name: tls-cacert
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.tls.certs.cacertSecretName }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

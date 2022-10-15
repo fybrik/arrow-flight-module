@@ -9,7 +9,8 @@ from afm.pep import registry, consolidate_actions
 from afm.filesystems.s3 import s3filesystem_from_config
 from afm.filesystems.httpfs import httpfs_from_config
 from afm.flight.flight import flight_from_config
-
+from afm.environment.environment import get_cacert_path, get_certs, get_min_tls_version
+from fybrik_python_logging import logger, DataSetID
 from pyarrow.fs import LocalFileSystem
 
 def asset_from_config(config: Config, asset_name: str, partition_path=None, capability=""):
@@ -79,8 +80,23 @@ class FileSystemAsset(Asset):
     def _filesystem_for_asset(asset_config: dict):
         connection = asset_config['connection']
         connection_type = connection['type']
+        dataSetID = asset_config['name']
         if connection_type == "s3":
-            return s3filesystem_from_config(connection["s3"], asset_config['name'])
+            verify = None
+            ca_cert_path = get_cacert_path()
+            if ca_cert_path != "":
+                logger.trace("set cacert path to "+ ca_cert_path, extra={DataSetID: dataSetID})
+                verify = ca_cert_path
+
+            cert = None
+            certs_tuple = get_certs()
+            if certs_tuple:
+                st = ' '
+                logger.trace("set certs tuple to: ", st.join(certs_tuple), extra={DataSetID: dataSetID})
+                cert = certs_tuple
+            tls_min_version = get_min_tls_version()
+            return s3filesystem_from_config(connection["s3"], dataSetID, tls_min_version,
+                                            verify, cert)
         elif connection_type == "localfs":
             return LocalFileSystem()
         elif connection_type == "httpfs":
