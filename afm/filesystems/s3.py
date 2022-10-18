@@ -9,7 +9,21 @@ from pyarrow.fs import S3FileSystem
 from fybrik_python_vault_new import get_jwt_from_file, get_raw_secret_from_vault
 
 
-def get_s3_credentials_from_vault(vault_credentials, datasetID, tls_min_version=None, verify=None, cert=None):
+def get_s3_credentials_from_vault(vault_credentials, datasetID, tls_min_version=None, verify=True, cert=None):
+    """Get S3 credentials from Vault
+
+    Args:
+        vault_credentials (dictonary): Properties used for getting s3 credentials from Vault.
+        datasetID (string): dataset ID.
+        tls_min_version (string, optional): tls minimum version to use in the connection to Vault. Defaults to None.
+        verify (optional): Either a boolean, in which case it controls whether we verify
+        the Vault server's TLS certificate, or a string, in which case it must be a path
+        to a CA bundle to use. Defaults to ``True``.
+        cert (tuple, optional): the module ('cert', 'key') pair.
+
+    Returns:
+        S3 (access_key, secret_key) pair.
+    """
     jwt_file_path = vault_credentials.get('jwt_file_path', '/var/run/secrets/kubernetes.io/serviceaccount/token')
     jwt = get_jwt_from_file(jwt_file_path)
     vault_address = vault_credentials.get('address', 'https://localhost:8200')
@@ -35,7 +49,21 @@ def get_s3_credentials_from_vault(vault_credentials, datasetID, tls_min_version=
                  extra={DataSetID: datasetID, ForUser: True})
     raise ValueError("Vault credentials are missing")
 
-def s3filesystem_from_config(s3_config, datasetID, tls_min_version=None, verify=None, cert=None):
+def s3filesystem_from_config(s3_config, datasetID, tls_min_version=None, verify=True, cert=None):
+    """Construct and return object of type S3FileSystem based on properties from the configuration
+
+    Args:
+        s3_config (dictinary): s3 configuration.
+        datasetID (string): dataset ID.
+        tls_min_version (string, optional): tls minimum version to use in the connection to Vault. Defaults to None.
+        verify (optional): Either a boolean, in which case it controls whether we verify
+        the Vault server's TLS certificate, or a string, in which case it must be a path
+        to a CA bundle to use. Defaults to ``True``.
+        cert (tuple, optional): the module ('cert', 'key') pair.
+
+    Returns:
+        An object of type S3FileSystem
+    """
     endpoint = s3_config.get('endpoint_url')
     region = s3_config.get('region')
 
