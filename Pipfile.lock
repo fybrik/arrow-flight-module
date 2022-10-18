@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3e78a1a6c1c544b033e4c2b09a1131bb93872b5633b2f996b6e36204b59b42e7"
+            "sha256": "4503e465502be4e5d8ec634bea88b02574e29065bfe6cb05686dd5badbf60c77"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -139,11 +139,11 @@
         },
         "fybrik-python-vault-new": {
             "hashes": [
-                "sha256:23badc2e79fd05fd3eaefeda46c82bb114bd13bca7abdf113d2659b9dd2b27c2",
-                "sha256:b479d79e757cbc6d3e4ede5ba552e084baa8dc50a7ff563d4f171e747ccde69a"
+                "sha256:bc77f7b2be361cdfc3c593cbfdf8a025640ca16568962adf955f48230f70de5f",
+                "sha256:e7b788f193472525a2191819de4c39fd609f912b843fcc7afe0ff82493745ba0"
             ],
             "index": "testpypi",
-            "version": "==0.3.0"
+            "version": "==0.8.0"
         },
         "idna": {
             "hashes": [
