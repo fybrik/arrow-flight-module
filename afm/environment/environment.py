@@ -20,26 +20,34 @@ CACERTS_FILE = os.environ.get(DATA_DIR) + "/tls-cacert/ca.crt"
 def get_env_var_value(name):
     return os.environ.get(name)
 
+def print_env_vars():
+    data_dir = os.environ.get(DATA_DIR)
+    if data_dir:
+      logger.trace("DATA_DIR: " + data_dir)
+    min_tls_version = os.environ.get(MIN_TLS_VERSION)
+    if min_tls_version:
+      logger.trace("MIN_TLS_VERSION: " + min_tls_version)
+
 def get_min_tls_version():
     min_version = os.environ.get(MIN_TLS_VERSION)
     # ref: https://docs.python.org/3/library/ssl.html#ssl.TLSVersion.MINIMUM_SUPPORTED
     rv = None
-    match min_version:
-        case "SSL-3":
-          rv = ssl.TLSVersion.SSLv3
-        case "TLS-1":
-          rv = ssl.TLSVersion.TLSv1
-        case "TLS-1.1":
-          rv = ssl.TLSVersion.TLSv1_1
-        case "TLS-1.2":
-          rv = ssl.TLSVersion.TLSv1_2
-        case "TLS-1.3":
-          rv = ssl.TLSVersion.TLSv1_3
-        case _:
-            logger.debug('MinTLSVersion is set to the system default value')
-            return rv
+
+    if min_version == "SSL-3":
+      rv = ssl.TLSVersion.SSLv3
+    elif min_version == "TLS-1":
+      rv = ssl.TLSVersion.TLSv1
+    elif min_version == "TLS-1.1":
+      rv = ssl.TLSVersion.TLSv1_1
+    elif min_version == "TLS-1.2":
+      rv = ssl.TLSVersion.TLSv1_2
+    elif min_version == "TLS-1.3":
+      rv = ssl.TLSVersion.TLSv1_3
+    else:
+      logger.trace('MinTLSVersion is set to the system default value')
+      return rv
             
-    logger.debug("MinTLSVersion is set to " + min_version)
+    logger.trace("MinTLSVersion is set to " + min_version)
     return rv
   
 def get_certs():
