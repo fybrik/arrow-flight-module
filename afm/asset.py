@@ -85,14 +85,14 @@ class FileSystemAsset(Asset):
             verify = None
             ca_cert_path = get_cacert_path()
             if ca_cert_path != "":
-                logger.trace("set cacert path to "+ ca_cert_path, extra={DataSetID: dataSetID})
+                logger.trace("set cacert path to " + ca_cert_path, extra={DataSetID: dataSetID})
                 verify = ca_cert_path
 
             cert = None
             certs_tuple = get_certs()
             if certs_tuple:
                 st = ' '
-                logger.trace("set certs tuple to: ", st.join(certs_tuple), extra={DataSetID: dataSetID})
+                logger.trace("set certs tuple to: " + st.join(certs_tuple), extra={DataSetID: dataSetID})
                 cert = certs_tuple
             tls_min_version = get_min_tls_version()
             return s3filesystem_from_config(connection["s3"], dataSetID, tls_min_version,

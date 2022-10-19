@@ -65,7 +65,3 @@ def get_cacert_path():
     if exists(CACERTS_FILE):
         return CACERTS_FILE
     return ""
-
-        
-          
-        
