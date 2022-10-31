@@ -46,3 +46,20 @@ map if running on openshift.
 {{- end }}
 {{- $podSecurityContext | toYaml }}
 {{- end }}
+
+{{/*
+Print Data directory.
+*/}}
+{{- define "fybrik.getDataDir" -}}
+/data
+{{- end }}
+
+{{/*
+Print sub directory in /data directory. The sub directory is
+passed as parameter to the function.
+*/}}
+{{- define "fybrik.getDataSubdir" -}}
+{{- $dir := toString (first .) -}}
+{{- printf "%s/%s" (include "fybrik.getDataDir" .) $dir }}
+{{- end }}
+

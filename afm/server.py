@@ -22,6 +22,7 @@ from .pep import transform, transform_schema, transform_batches, actions
 from .ticket import AFMTicket
 from .worker import workers_from_config
 from .auth import AFMAuthHandler
+from .environment.environment import print_env_vars
 
 class AFMFlightServer(fl.FlightServerBase):
     def __init__(self, config_path: str, port: int, loglevel: str, *args, **kwargs):
@@ -32,6 +33,7 @@ class AFMFlightServer(fl.FlightServerBase):
                 *args, **kwargs)
         init_logger(loglevel, config.app_uuid, 'arrow-flight-server')
         self.config_path = config_path
+        print_env_vars()
 
     def _get_dataset(self, asset):
         # FIXME(roee88): bypass https://issues.apache.org/jira/browse/ARROW-7867
