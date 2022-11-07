@@ -6,7 +6,7 @@ from urllib.parse import urlparse, quote
 import requests
 from fybrik_python_logging import logger, DataSetID, ForUser
 from pyarrow.fs import S3FileSystem
-from fybrik_python_vault_new import get_jwt_from_file, get_raw_secret_from_vault
+from fybrik_python_vault import get_jwt_from_file, get_raw_secret_from_vault
 
 
 def get_s3_credentials_from_vault(vault_credentials, datasetID, tls_min_version=None, verify=True, cert=None):
