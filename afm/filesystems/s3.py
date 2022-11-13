@@ -71,23 +71,11 @@ def s3filesystem_from_config(s3_config, datasetID, tls_min_version=None, verify=
     access_key = credentials.get('accessKey')
     secret_key = credentials.get('secretKey')
 
-    secret_provider = credentials.get('secretProvider')
-
     if 'vault_credentials' in s3_config:
         logger.trace("reading s3 configuration from vault",
                      extra={DataSetID: datasetID})
         access_key, secret_key = get_s3_credentials_from_vault(
                 s3_config.get('vault_credentials'), datasetID, tls_min_version, verify, cert)
-    elif secret_provider:
-        logger.trace("reading s3 configuration from secret provider",
-                     extra={DataSetID: datasetID})
-        r = requests.get(secret_provider)
-        r.raise_for_status()
-        response = r.json()
-        endpoint = response.get('endpoint_url') or endpoint
-        region = response.get('region') or region
-        access_key = response.get('access_key') or access_key
-        secret_key = response.get('secret_key') or secret_key
 
     scheme, endpoint_override = _split_endpoint(endpoint)
     anonymous = not access_key
