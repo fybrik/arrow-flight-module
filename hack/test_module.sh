@@ -86,7 +86,7 @@ then
 	    --values charts/vault/env/dev/vault-single-cluster-values.yaml
 	../${TOOLBIN}/kubectl wait --for=condition=ready --all pod -n fybrik-system --timeout=120s
 	../${TOOLBIN}/helm install fybrik-crd charts/fybrik-crd -n fybrik-system --wait
-	../${TOOLBIN}/helm install fybrik charts/fybrik --set global.tag=master -n fybrik-system --wait
+	../${TOOLBIN}/helm install fybrik charts/fybrik --set "coordinator.catalog=katalog" --set global.tag=master -n fybrik-system --wait
 	cd -
 	rm -rf fybrik
 else
@@ -97,7 +97,7 @@ else
     ${TOOLBIN}/kubectl wait --for=condition=ready --all pod -n fybrik-system --timeout=400s
 
 	${TOOLBIN}/helm install fybrik-crd fybrik-charts/fybrik-crd -n fybrik-system --version v$fybrikVersion --wait
-	${TOOLBIN}/helm install fybrik fybrik-charts/fybrik -n fybrik-system --version v$fybrikVersion --wait
+	${TOOLBIN}/helm install fybrik fybrik-charts/fybrik --set "coordinator.catalog=katalog" -n fybrik-system --version v$fybrikVersion --wait
 fi
 
 # apply modules
