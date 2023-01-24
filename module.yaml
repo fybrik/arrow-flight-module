@@ -19,7 +19,7 @@ spec:
           name: fybrik-arrow-flight
           fybrik-arrow-flight:
             hostname: "{{ .Release.Name }}.{{ .Release.Namespace }}"
-            port: "80"
+            port: 80
             scheme: grpc
       supportedInterfaces:
         - source:
@@ -42,7 +42,7 @@ spec:
           name: fybrik-arrow-flight
           fybrik-arrow-flight:
             hostname: "{{ .Release.Name }}.{{ .Release.Namespace }}"
-            port: "80"
+            port: 80
             scheme: grpc
       supportedInterfaces:
         - sink:
