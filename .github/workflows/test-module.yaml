@@ -4,7 +4,7 @@ on:
     inputs:
       kind-version:
         required: true
-        default: 'kind22'
+        default: 'kind25'
         type: choice
         options:
         - kind19
@@ -13,18 +13,19 @@ on:
         - kind22
         - kind23
         - kind24
+        - kind25
       fybrik-version:
         required: true
-        default: '1.0.1'
+        default: '1.2.1'
       module-version:
         required: true
-        default: '0.8.0'
+        default: '0.10.0'
       cert-manager-version:
         required: true
         default: '1.6.2'
 
 env:
-  GO_VERSION: 1.17
+  GO_VERSION: 1.19
   AWS_PAGER: ""
   AWS_EC2_METADATA_DISABLED: true
 

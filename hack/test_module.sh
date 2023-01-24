@@ -32,27 +32,31 @@ fi
 if [ $kubernetesVersion == "kind19" ]
 then
     ${TOOLBIN}/kind delete cluster
-    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.19.11@sha256:07db187ae84b4b7de440a73886f008cf903fcf5764ba8106a9fd5243d6f32729
+    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.19.16@sha256:476cb3269232888437b61deca013832fee41f9f074f9bed79f57e4280f7c48b7
 elif [ $kubernetesVersion == "kind20" ]
 then
     ${TOOLBIN}/kind delete cluster
-    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.20.7@sha256:cbeaf907fc78ac97ce7b625e4bf0de16e3ea725daf6b04f930bd14c67c671ff9
+    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.20.15@sha256:a32bf55309294120616886b5338f95dd98a2f7231519c7dedcec32ba29699394
 elif [ $kubernetesVersion == "kind21" ]
 then
     ${TOOLBIN}/kind delete cluster
-    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
+    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.21.14@sha256:9d9eb5fb26b4fbc0c6d95fa8c790414f9750dd583f5d7cee45d92e8c26670aa1
 elif [ $kubernetesVersion == "kind22" ]
 then
     ${TOOLBIN}/kind delete cluster
-    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.22.0@sha256:b8bda84bb3a190e6e028b1760d277454a72267a5454b57db34437c34a588d047
+    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.22.15@sha256:7d9708c4b0873f0fe2e171e2b1b7f45ae89482617778c1c875f1053d4cef2e41
 elif [ $kubernetesVersion == "kind23" ]
 then
     ${TOOLBIN}/kind delete cluster
-    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.23.6@sha256:b1fa224cc6c7ff32455e0b1fd9cbfd3d3bc87ecaa8fcb06961ed1afb3db0f9ae
+    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.23.13@sha256:ef453bb7c79f0e3caba88d2067d4196f427794086a7d0df8df4f019d5e336b61
 elif [ $kubernetesVersion == "kind24" ]
 then
     ${TOOLBIN}/kind delete cluster
-    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.24.0@sha256:0866296e693efe1fed79d5e6c7af8df71fc73ae45e3679af05342239cdc5bc8e
+    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.24.7@sha256:577c630ce8e509131eab1aea12c022190978dd2f745aac5eb1fe65c0807eb315
+elif [ $kubernetesVersion == "kind25" ]
+then
+    ${TOOLBIN}/kind delete cluster
+    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.25.3@sha256:f52781bc0d7a19fb6c405c2af83abfeb311f130707a0e219175677e366cc45d1
 else
     echo "Unsupported kind version"
     exit 1

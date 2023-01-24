@@ -8,7 +8,7 @@ $(TOOLBIN)/helm:
 
 INSTALL_TOOLS += $(TOOLBIN)/kind
 $(TOOLBIN)/kind:
-	GOBIN=$(ABSTOOLBIN) go install sigs.k8s.io/kind@v0.11.1
+	GOBIN=$(ABSTOOLBIN) go install sigs.k8s.io/kind@v0.17.0
 
 INSTALL_TOOLS += $(TOOLBIN)/kubebuilder
 $(TOOLBIN)/kubebuilder $(TOOLBIN)/etcd $(TOOLBIN)/kube-apiserver $(TOOLBIN)/kubectl:
