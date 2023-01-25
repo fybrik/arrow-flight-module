@@ -7,10 +7,6 @@ on:
         default: 'kind25'
         type: choice
         options:
-        - kind19
-        - kind20
-        - kind21
-        - kind22
         - kind23
         - kind24
         - kind25

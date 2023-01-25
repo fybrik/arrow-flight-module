@@ -29,23 +29,7 @@ else
     oldTestVersion=false
 fi
 
-if [ $kubernetesVersion == "kind19" ]
-then
-    ${TOOLBIN}/kind delete cluster
-    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.19.16@sha256:476cb3269232888437b61deca013832fee41f9f074f9bed79f57e4280f7c48b7
-elif [ $kubernetesVersion == "kind20" ]
-then
-    ${TOOLBIN}/kind delete cluster
-    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.20.15@sha256:a32bf55309294120616886b5338f95dd98a2f7231519c7dedcec32ba29699394
-elif [ $kubernetesVersion == "kind21" ]
-then
-    ${TOOLBIN}/kind delete cluster
-    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.21.14@sha256:9d9eb5fb26b4fbc0c6d95fa8c790414f9750dd583f5d7cee45d92e8c26670aa1
-elif [ $kubernetesVersion == "kind22" ]
-then
-    ${TOOLBIN}/kind delete cluster
-    ${TOOLBIN}/kind create cluster --image=kindest/node:v1.22.15@sha256:7d9708c4b0873f0fe2e171e2b1b7f45ae89482617778c1c875f1053d4cef2e41
-elif [ $kubernetesVersion == "kind23" ]
+if [ $kubernetesVersion == "kind23" ]
 then
     ${TOOLBIN}/kind delete cluster
     ${TOOLBIN}/kind create cluster --image=kindest/node:v1.23.13@sha256:ef453bb7c79f0e3caba88d2067d4196f427794086a7d0df8df4f019d5e336b61
