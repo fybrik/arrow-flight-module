@@ -7,6 +7,10 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+ROOT_DIR=../..
+
+source ${ROOT_DIR}/hack/tools/requirements.sh
+
 arch=amd64
 os="unknown"
 

@@ -11,18 +11,23 @@ env:
   DOCKER_USERNAME: ${{ github.actor }}
   AWS_PAGER: ""
   AWS_EC2_METADATA_DISABLED: true
+  GO_VERSION: 1.19
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     env:
-      kubectlVersion: 'kind20'
+      kubectlVersion: 'kind25'
       fybrikVersion: 'master'
       moduleVersion: 'master'
       certManagerVersion: '1.6.2'
     steps:
     - uses: actions/checkout@v3
+    - name: Install Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ env.GO_VERSION }}
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
