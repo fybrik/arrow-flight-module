@@ -14,19 +14,9 @@ fybrikVersion=$2
 moduleVersion=$3
 certManagerVersion=$4
 
-# Trim the last two charts of the module version
-# to construct the module resource path
-moduleResourceVersion=${moduleVersion%??}".0"
-
-if [ $moduleVersion == '0.5.0' ] || [ $moduleVersion == '0.6.0' ] || [ $moduleVersion == '0.7.0' ]
+if [ $moduleVersion != 'master' ]
 then
-  oldTestVersion=true
-elif [ $moduleVersion == 'master' ]
-then
-    oldTestVersion=false
-else
     git checkout tags/v$moduleVersion
-    oldTestVersion=false
 fi
 
 if [ $kubernetesVersion == "kind23" ]
@@ -128,8 +118,11 @@ export ENDPOINT="http://127.0.0.1:4566"
 export BUCKET="demo"
 export OBJECT_KEY="PS_20174392719_1491204439457_log.csv"
 export FILEPATH="$WORKING_DIR/PS_20174392719_1491204439457_log.csv"
-aws configure set aws_access_key_id ${ACCESS_KEY} && aws configure set aws_secret_access_key ${SECRET_KEY} && aws --endpoint-url=${ENDPOINT} s3api create-bucket --bucket ${BUCKET} && aws --endpoint-url=${ENDPOINT} s3api put-object --bucket ${BUCKET} --key ${OBJECT_KEY} --body ${FILEPATH}
-
+export REGION=theshire
+aws configure set aws_access_key_id ${ACCESS_KEY} && aws configure set aws_secret_access_key ${SECRET_KEY}
+aws configure set region ${REGION}
+aws --endpoint-url=${ENDPOINT} s3api create-bucket --bucket ${BUCKET} --region ${REGION} --create-bucket-configuration LocationConstraint=${REGION}
+aws --endpoint-url=${ENDPOINT} s3api put-object --bucket ${BUCKET} --key ${OBJECT_KEY} --body ${FILEPATH}
 
 cat << EOF | ${TOOLBIN}/kubectl apply -f -
 apiVersion: v1
@@ -143,22 +136,12 @@ stringData:
 EOF
 
 
-if [ $moduleVersion == "master" ] || [ $oldTestVersion = false ]
-then
-	${TOOLBIN}/kubectl apply -f $WORKING_DIR/Asset.yaml -n fybrik-notebook-sample
-else
-	${TOOLBIN}/kubectl apply -f $WORKING_DIR/Asset-$moduleResourceVersion.yaml -n fybrik-notebook-sample
-fi
+${TOOLBIN}/kubectl apply -f $WORKING_DIR/Asset.yaml -n fybrik-notebook-sample
 
 ${TOOLBIN}/kubectl describe Asset paysim-csv -n fybrik-notebook-sample
 
 
-if [ $moduleVersion == "master" ] || [ $oldTestVersion = false ]
-then
-	${TOOLBIN}/kubectl -n fybrik-system create configmap sample-policy --from-file=$WORKING_DIR/sample-policy.rego
-else
-	${TOOLBIN}/kubectl -n fybrik-system create configmap sample-policy --from-file=$WORKING_DIR/sample-policy-$moduleResourceVersion.rego
-fi
+${TOOLBIN}/kubectl -n fybrik-system create configmap sample-policy --from-file=$WORKING_DIR/sample-policy.rego
 ${TOOLBIN}/kubectl -n fybrik-system label configmap sample-policy openpolicyagent.org/policy=rego
 
 c=0
@@ -170,12 +153,7 @@ do
 done
 
 
-if [ $moduleVersion == "master" ] || [ $oldTestVersion = false ]
-then
-	${TOOLBIN}/kubectl apply -f $WORKING_DIR/fybrikapplication.yaml
-else
-	${TOOLBIN}/kubectl apply -f $WORKING_DIR/fybrikapplication-$moduleResourceVersion.yaml
-fi
+${TOOLBIN}/kubectl apply -f $WORKING_DIR/fybrikapplication.yaml
 
 c=0
 while [[ $(${TOOLBIN}/kubectl get fybrikapplication my-notebook -o 'jsonpath={.status.ready}') != "true" ]]
