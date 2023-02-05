@@ -8,7 +8,7 @@ import hashlib
 from time import time
 from datetime import datetime
 
-from .base import Action, PandasAction
+from fybrik_python_transformation import Action, PandasAction
 
 class Filter(PandasAction):
     def __init__(self, description, columns, options):

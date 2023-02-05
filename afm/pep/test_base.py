@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import unittest
-from .base import Action, consolidate_actions, action_key
+from fybrik_python_transformation import Action, consolidate_actions, action_key
 
 class ActionOne(Action):
     pass
