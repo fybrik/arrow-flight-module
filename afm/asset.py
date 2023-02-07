@@ -28,8 +28,7 @@ class Asset:
     def __init__(self, config: Config, asset_name: str, partition_path=None, capability=""):
         asset_config = config.for_asset(asset_name, capability=capability)
         self._config = asset_config
-        self._actions = Asset._actions_for_asset(asset_config, config.plugin_dir
-)
+        self._actions = Asset._actions_for_asset(asset_config, config.plugin_dir)
         self._format = asset_config.get("format")
         if partition_path:
             self._path = partition_path
