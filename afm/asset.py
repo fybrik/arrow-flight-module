@@ -2,7 +2,9 @@
 # Copyright 2020 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 #
+import importlib
 import os
+import sys
 
 from afm.config import Config
 from afm.pep import registry, consolidate_actions
@@ -26,7 +28,7 @@ class Asset:
     def __init__(self, config: Config, asset_name: str, partition_path=None, capability=""):
         asset_config = config.for_asset(asset_name, capability=capability)
         self._config = asset_config
-        self._actions = Asset._actions_for_asset(asset_config)
+        self._actions = Asset._actions_for_asset(asset_config, config.plugin_dir)
         self._format = asset_config.get("format")
         if partition_path:
             self._path = partition_path
@@ -58,9 +60,25 @@ class Asset:
         return self._config['connection']['type']
 
     @staticmethod
-    def _actions_for_asset(asset_config: dict):
+    def _try_to_find_plugin(plugin_name: str, plugin_dir: str):
+        if plugin_dir:
+            python_filename = plugin_name + ".py"
+            if python_filename in os.listdir(plugin_dir):
+                module = importlib.import_module(plugin_name)
+                cls = getattr(module, plugin_name)
+                registry[plugin_name] = cls
+                return cls
+        logger.error("plugin " + plugin_name + " not found")
+        return None
+
+    @staticmethod
+    def _actions_for_asset(asset_config: dict, plugin_dir: str):
         def build_action(x):
-            cls = registry[x["action"]]
+            action_name = x["action"]
+            if action_name in registry:
+                cls = registry[action_name]
+            else:
+                cls = Asset._try_to_find_plugin(action_name, plugin_dir)
             return cls(description=x["description"], columns=x.get("columns"), options=x.get("options"))
 
         transformations = asset_config.get("transformations")

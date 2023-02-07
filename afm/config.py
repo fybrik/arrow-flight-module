@@ -2,6 +2,7 @@
 # Copyright 2020 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 #
+import sys
 import yaml
 
 
@@ -10,6 +11,8 @@ class Config:
         # TODO: change to schemed yaml using schemed-yaml-config
         with open(config_path, 'r') as stream:
             self.values = yaml.safe_load(stream)
+        if self.plugin_dir and self.plugin_dir not in sys.path:
+            sys.path.append(self.plugin_dir)
 
     def for_asset(self, asset_name: str, capability="") -> dict:
         for asset_info in self.values.get('data', []):
@@ -17,6 +20,10 @@ class Config:
                 return asset_info
         raise ValueError(
             "Requested config for undefined asset: {}".format(asset_name))
+
+    @property
+    def plugin_dir(self) -> str:
+        return self.values.get('plugin_dir', None)
 
     @property
     def app_uuid(self) -> str:
