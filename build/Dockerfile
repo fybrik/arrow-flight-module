@@ -14,6 +14,7 @@ COPY main.py main.py
 COPY afm afm
 
 RUN mkdir -p /etc/plugins
+RUN chown afm /etc/plugins
 
 EXPOSE 8080
 
