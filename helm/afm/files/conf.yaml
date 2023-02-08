@@ -1,4 +1,5 @@
 app-uuid: {{ .Values.uuid | default "app-uuid-missing" }}
+plugin_dir: /etc/plugins
 {{ if .Values.assets -}}
 data:
 {{- range $asset := .Values.assets }}
