@@ -13,6 +13,8 @@ WORKDIR /app
 COPY main.py main.py
 COPY afm afm
 
+RUN mkdir -p /etc/plugins
+
 EXPOSE 8080
 
 ENTRYPOINT ["python3"]
