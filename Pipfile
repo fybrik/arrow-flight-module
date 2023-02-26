@@ -23,7 +23,7 @@ faker = "==13.3.0"
 fybrik_python_logging = "==0.1.0"
 fybrik_python_tls = "==0.1.0"
 fybrik_python_vault = "==0.2.0"
-fybrik_python_transformation = "==0.1.0"
+fybrik_python_transformation = "==0.2.0"
 
 [requires]
 python_version = "3.8"
