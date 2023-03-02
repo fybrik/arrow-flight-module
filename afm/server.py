@@ -77,6 +77,7 @@ class AFMFlightServer(fl.FlightServerBase):
 
     def _read_asset(self, asset, columns=None):
         dataset, data_files = self._get_dataset(asset)
+        columns = [c for c in columns if dataset.schema.get_field_index(c) != -1]
         scanner = ds.Scanner.from_dataset(dataset, columns=columns, batch_size=64*2**20)
         batches = scanner.to_batches()
         if columns:
