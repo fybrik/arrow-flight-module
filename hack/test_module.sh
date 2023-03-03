@@ -168,9 +168,10 @@ ${TOOLBIN}/kubectl get pods -n fybrik-blueprints
 POD_NAME=$(${TOOLBIN}/kubectl get pods -n fybrik-blueprints -o=name | sed "s/^.\{4\}//")
 
 ${TOOLBIN}/kubectl get cm -n fybrik-blueprints -o yaml
-
+export CATALOGED_ASSET=fybrik-notebook-sample/paysim-csv
+export ENDPOINT_HOSTNAME=$(kubectl get fybrikapplication my-notebook -n fybrik-notebook-sample -o "jsonpath={.status.assetStates.${CATALOGED_ASSET}.endpoint.fybrik-arrow-flight.hostname}")
 ${TOOLBIN}/kubectl cp $WORKING_DIR/test.py ${POD_NAME}:/tmp -n fybrik-blueprints
-${TOOLBIN}/kubectl exec -i ${POD_NAME} -n fybrik-blueprints -- python /tmp/test.py > res.out
+${TOOLBIN}/kubectl exec -i ${POD_NAME} -n fybrik-blueprints -- python /tmp/test.py -e ${ENDPOINT_HOSTNAME} -p 80 > res.out
 
 
 ${TOOLBIN}/kubectl logs ${POD_NAME} -n fybrik-blueprints

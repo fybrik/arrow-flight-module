@@ -8,9 +8,15 @@
 import json
 import pyarrow.flight as fl
 import pandas as pd
+import sys
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-e", "--endpoint", required=True)
+parser.add_argument("-p", "--port", required=True)
+args = parser.parse_args()
 # Create a Flight client
-client = fl.connect('grpc://my-notebook-fybrik-notebook-sample-arrow-flight-aef23.fybrik-blueprints:80')
+client = fl.connect("grpc://{}:{}".format(args.endpoint, args.port))
 
 # Prepare the request
 request = {
