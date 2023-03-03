@@ -8,7 +8,6 @@
 import json
 import pyarrow.flight as fl
 import pandas as pd
-import sys
 import argparse
 
 parser = argparse.ArgumentParser()
