@@ -37,6 +37,11 @@ spec:
             - name: grpc
               containerPort: 8080
               protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
           securityContext:
           {{- .Values.containerSecurityContext | toYaml | nindent 12 }}
           resources:
