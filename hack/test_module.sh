@@ -118,10 +118,10 @@ export ENDPOINT="http://127.0.0.1:4566"
 export BUCKET="demo"
 export OBJECT_KEY="PS_20174392719_1491204439457_log.csv"
 export FILEPATH="$WORKING_DIR/PS_20174392719_1491204439457_log.csv"
-export REGION=theshire
+export REGION=us-east-1
 aws configure set aws_access_key_id ${ACCESS_KEY} && aws configure set aws_secret_access_key ${SECRET_KEY}
 aws configure set region ${REGION}
-aws --endpoint-url=${ENDPOINT} s3api create-bucket --bucket ${BUCKET} --region ${REGION} --create-bucket-configuration LocationConstraint=${REGION}
+aws --endpoint-url=${ENDPOINT} s3api create-bucket --bucket ${BUCKET} 
 aws --endpoint-url=${ENDPOINT} s3api put-object --bucket ${BUCKET} --key ${OBJECT_KEY} --body ${FILEPATH}
 
 cat << EOF | ${TOOLBIN}/kubectl apply -f -
