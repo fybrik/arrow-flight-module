@@ -22,7 +22,7 @@ def get_s3_credentials_from_vault(vault_credentials, datasetID, tls_min_version=
         cert (tuple, optional): the module ('cert', 'key') pair.
 
     Returns:
-        S3 (access_key, secret_key) pair.
+        S3 (access_key, secret_key, session_token).
     """
     jwt_file_path = vault_credentials.get('jwt_file_path', '/var/run/secrets/kubernetes.io/serviceaccount/token')
     jwt = get_jwt_from_file(jwt_file_path)
@@ -37,7 +37,7 @@ def get_s3_credentials_from_vault(vault_credentials, datasetID, tls_min_version=
         raise ValueError("Vault credentials are missing")
     if 'access_key' in credentials and 'secret_key' in credentials:
         session_token = None
-        if credentials['session_token']:
+        if 'session_token' in credentials:
             session_token = credentials['session_token']
             logger.trace("session_token was provided in credentials read from Vault")
         if credentials['access_key'] and credentials['secret_key']:
