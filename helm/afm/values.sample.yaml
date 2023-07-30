@@ -10,6 +10,7 @@ assets:
         bucket: fybrik-test-bucket
         endpoint: s3.eu-gb.cloud-object-storage.appdomain.cloud
         object_key: test1.parquet
+        region: theshire
     format: parquet
     vault:
       read:

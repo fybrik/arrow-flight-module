@@ -36,8 +36,12 @@ def get_s3_credentials_from_vault(vault_credentials, datasetID, tls_min_version=
     if not credentials:
         raise ValueError("Vault credentials are missing")
     if 'access_key' in credentials and 'secret_key' in credentials:
+        session_token = None
+        if credentials['session_token']:
+            session_token = credentials['session_token']
+            logger.trace("session_token was provided in credentials read from Vault")
         if credentials['access_key'] and credentials['secret_key']:
-            return credentials['access_key'], credentials['secret_key']
+            return credentials['access_key'], credentials['secret_key'], session_token
         else:
             if not credentials['access_key']:
                 logger.error("'access_key' must be non-empty",
@@ -74,7 +78,7 @@ def s3filesystem_from_config(s3_config, datasetID, tls_min_version=None, verify=
     if 'vault_credentials' in s3_config:
         logger.trace("reading s3 configuration from vault",
                      extra={DataSetID: datasetID})
-        access_key, secret_key = get_s3_credentials_from_vault(
+        access_key, secret_key, session_token = get_s3_credentials_from_vault(
                 s3_config.get('vault_credentials'), datasetID, tls_min_version, verify, cert)
 
     scheme, endpoint_override = _split_endpoint(endpoint)
@@ -86,6 +90,7 @@ def s3filesystem_from_config(s3_config, datasetID, tls_min_version=None, verify=
         scheme=scheme,
         access_key=access_key,
         secret_key=secret_key,
+        session_token=session_token,
         anonymous=anonymous
     )
 
