@@ -37,9 +37,13 @@ def get_s3_credentials_from_vault(vault_credentials, datasetID, tls_min_version=
         raise ValueError("Vault credentials are missing")
     if 'access_key' in credentials and 'secret_key' in credentials:
         session_token = None
-        if 'session_token' in credentials:
+        if 'session_token' in credentials and credentials['session_token']:
             session_token = credentials['session_token']
-            logger.trace("session_token was provided in credentials read from Vault")
+            logger.trace("session_token was provided in credentials read from Vault",
+                         extra={DataSetID: datasetID})
+        else:
+            logger.trace("session_token was NOT provided in credentials read from Vault",
+                         extra={DataSetID: datasetID})
         if credentials['access_key'] and credentials['secret_key']:
             return credentials['access_key'], credentials['secret_key'], session_token
         else:
