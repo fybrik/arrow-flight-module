@@ -22,6 +22,9 @@ data:
       type: s3
       s3:
         endpoint_url: {{if not (contains "://" .connection.s3.endpoint)}}https://{{end}}{{ .connection.s3.endpoint }}
+        {{- if index . "connection" "s3" "region" }}
+        region: {{ .connection.s3.region }}
+        {{- end }}
         {{- range $k, $v := .vault }}
         {{- if or (eq $k "read") (eq $k "write") }}
         vault_credentials:
